@@ -51,7 +51,7 @@ packages:
     source: hosted
     version: "1.1.0"
   cloud_firestore:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: cloud_firestore
       url: "https://pub.dartlang.org"
@@ -100,7 +100,7 @@ packages:
     source: hosted
     version: "1.0.4"
   encrypt:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: encrypt
       url: "https://pub.dartlang.org"
@@ -135,7 +135,7 @@ packages:
     source: hosted
     version: "3.3.9"
   firebase_core:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: firebase_core
       url: "https://pub.dartlang.org"
@@ -178,14 +178,14 @@ packages:
     source: sdk
     version: "0.0.0"
   get:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: get
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.6.1"
   grouped_list:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: grouped_list
       url: "https://pub.dartlang.org"
@@ -295,7 +295,7 @@ packages:
     source: hosted
     version: "1.1.0"
   swipe_to:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: swipe_to
       url: "https://pub.dartlang.org"

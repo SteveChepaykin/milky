@@ -44,7 +44,7 @@ class ChatRoom {
   String getname() {
     if(purpose == RoomPurpose.chat) {
       Map<String, UserModel> other = roomusers;
-      other.removeWhere((key, value) => key == Get.find<FirebaseController>().myid);
+      other.removeWhere((key, value) => key == Get.find<FirebaseController>().currentUser!.id);
       return other.values.toList()[0].nickname;
     } else {
       return name!;

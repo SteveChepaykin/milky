@@ -32,6 +32,6 @@ class Message {
   }
 
   bool sentByMe() {
-    return sentbyid == Get.find<FirebaseController>().myid;
+    return sentbyid == Get.find<FirebaseController>().currentUser!.id;
   }
 }

@@ -93,7 +93,7 @@ class _ChatScreenState extends State<ChatScreen> {
               );
             },
           ),
-          roomcont.thischatroom!.purpose == RoomPurpose.channel && roomcont.thischatroom!.hostid != Get.find<FirebaseController>().myid
+          roomcont.thischatroom!.purpose == RoomPurpose.channel && roomcont.thischatroom!.hostid != Get.find<FirebaseController>().currentUser!.id
               ? Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Container(

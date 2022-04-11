@@ -54,6 +54,9 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
             },
             icon: const Icon(Icons.add),
           ),
+          IconButton(onPressed: () async {
+            await Get.find<FirebaseController>().signOutUser();
+          }, icon: const Icon(Icons.exit_to_app))
         ],
       ),
       body: StreamBuilder<List<ChatRoom>>(

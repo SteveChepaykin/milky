@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:milky/models/chatroom_model.dart';
@@ -6,15 +7,18 @@ import 'package:milky/models/user_model.dart';
 
 class FirebaseController extends GetxController {
   late final FirebaseFirestore _store;
-  final String myid = 'XEODdv0veoWU9oZU4D1C';
-  final String otherid = 'rrGVbfwxD1x21TeE6XaR';
+  // final String myid = 'XEODdv0veoWU9oZU4D1C';
+  // final String otherid = 'rrGVbfwxD1x21TeE6XaR';
+  UserModel? currentUser;
+  late Rx<UserModel?> currentUser$;
 
   FirebaseController() {
     _store = FirebaseFirestore.instance;
+    currentUser$ = currentUser.obs;
   }
 
   Future<void> changeUserStatus(bool status) async {
-    var a = _store.collection('people').doc(myid);
+    var a = _store.collection('people').doc(currentUser!.id);
     // var p = await a.get();
     await a.update({
       'is_online': status,
@@ -22,7 +26,7 @@ class FirebaseController extends GetxController {
   }
 
   Stream<List<ChatRoom>> getChatRooms() {
-    return _store.collection('chatrooms').where('user_ids', arrayContains: myid).snapshots().map((event) {
+    return _store.collection('chatrooms').where('user_ids', arrayContains: currentUser!.id).snapshots().map((event) {
       List<ChatRoom> lc = [];
       for (var r in event.docs) {
         lc.add(ChatRoom.fromMap(r.id, r.data()));
@@ -89,6 +93,11 @@ class FirebaseController extends GetxController {
     return UserModel.fromMap(id, a.data()!);
   }
 
+  Future<UserModel> getUserByEmail(String email) async {
+    var a = await _store.collection('people').where('email', isEqualTo: email).limit(1).get();
+    return UserModel.fromMap(a.docs[0].id, a.docs[0].data());
+  }
+
   Stream<List<Message>> getRoomMessages(ChatRoom cr) {
     return _store
         .collection('chatrooms')
@@ -113,15 +122,16 @@ class FirebaseController extends GetxController {
   Future<void> addMessage(ChatRoom cr, Map<String, dynamic> m) async {
     var a = _store.collection('chatrooms').doc(cr.id);
     var b = await a.collection('messages').add({
-      'sentbyid': myid,
+      'sentbyid': currentUser!.id,
       'messagetext': m['messagetext'],
       'timestamp': DateTime.now(),
       'senttotoken': m['senttotoken'],
       // 'replytextid': m['replytextid'],
-      if(m['replymessage'] != null) 'replymessage': {
-        'message': m['replymessage'],
-        'authorid': m['replyauthorid'],
-      }
+      if (m['replymessage'] != null)
+        'replymessage': {
+          'message': m['replymessage'],
+          'authorid': m['replyauthorid'],
+        }
       // 'messageimageurl': m['messageimageurl'],
     });
     await a.update({
@@ -148,7 +158,7 @@ class FirebaseController extends GetxController {
     var a = await _store.collection('people').orderBy(query.startsWith('@') ? 'identifier' : 'nickname').startAt([query]).endAt([query + '\uf8ff']).get();
     List<UserModel> res = [];
     for (var u in a.docs) {
-      if (u.id != myid) res.add(UserModel.fromMap(u.id, u.data()));
+      if (u.id != currentUser!.id) res.add(UserModel.fromMap(u.id, u.data()));
     }
     return res;
   }
@@ -164,13 +174,13 @@ class FirebaseController extends GetxController {
       {
         'purpose': 0,
         'lastmessageid': null,
-        'user_ids': [myid, partner.id],
+        'user_ids': [currentUser!.id, partner.id],
       },
     );
   }
 
   Future<bool> checkExistance(UserModel u) async {
-    var a = await _store.collection('chatrooms').where('user_ids', isEqualTo: [myid, u.id]).get();
+    var a = await _store.collection('chatrooms').where('user_ids', isEqualTo: [currentUser!.id, u.id]).get();
     return a.docs.isNotEmpty;
   }
 
@@ -182,5 +192,63 @@ class FirebaseController extends GetxController {
   Future<void> createChannel() async {
     var a = _store.collection('chatrooms');
     await a.add({});
+  }
+
+  Future<String?> registerUser(Map<String, String> m) async {
+    var a = await _store.collection('people').where('email', isEqualTo: m['email']).get();
+    if (a.docs.isNotEmpty) {
+      return 'This user already exists in app';
+    }
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: m['email']!, password: m['password']!);
+    } on FirebaseAuthException catch (e) {
+      return 'ERROR: ${e.message!}';
+    }
+
+    var q = await _store.collection('people').add({
+      'cloud_token': 'SOMETHINGLATER',
+      'is_online': true,
+      'email': m['email']!,
+      'identifier': m['identifier']!,
+      'nickname': m['nickname']!,
+      'picture_url': null,
+    });
+    var z = await q.get();
+    var u = UserModel.fromMap(z.id, z.data()!);
+    setCurrentUser(u);
+  }
+
+  Future<void> signInUser(Map<String, String> m) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: m['email']!, password: m['password']!);
+    } on FirebaseAuthException catch (e) {
+      print("LOGIN ERROR");
+    }
+    var a = await _store.collection('people').where('email', isEqualTo: m['email']!).limit(1).get();
+    var u = UserModel.fromMap(a.docs[0].id, a.docs[0].data());
+    setCurrentUser(u);
+  }
+
+  Future<void> signOutUser() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  void setCurrentUser(UserModel? user) {
+    currentUser = user;
+    currentUser$.value = user;
+  }
+
+  void listenUserAuthState() {
+    FirebaseAuth.instance.authStateChanges().listen(onUserAuthStateChange);
+  }
+
+  Future<void> onUserAuthStateChange(User? user) async {
+    if (user != null) {
+      var u = await getUserByEmail(user.email!);
+      setCurrentUser(u);
+    } else {
+      setCurrentUser(null);
+    }
   }
 }
