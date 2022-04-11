@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "524902822897",
+    "project_id": "milky-f45a3",
+    "storage_bucket": "milky-f45a3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524902822897:android:1c7dd7a78e1825ead4ca50",
+        "android_client_info": {
+          "package_name": "com.example.milky"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "524902822897-l777fa4c31914vf9q7c2joanqcvr0pqq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.milky",
+            "certificate_hash": "7cb62dfbd96fdb0cc069871a97f8fd081d3d0fc5"
+          }
+        },
+        {
+          "client_id": "524902822897-nljskbonf6ll5l5pkf04a9r6lqd1f97b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSJc0mzwC8xzqKJEUxoc2wcw1-WriB6lk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "524902822897-nljskbonf6ll5l5pkf04a9r6lqd1f97b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
