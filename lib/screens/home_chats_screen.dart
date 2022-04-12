@@ -66,7 +66,7 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
             return const CircularProgressIndicator();
           }
           if (snapshot.data!.isEmpty) {
-            return const Text('No contacts.');
+            return const Center(child: Text('No contacts. \n Find some!'));
           }
           return ListView.builder(
             itemBuilder: (context, index) {

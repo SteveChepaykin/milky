@@ -43,6 +43,7 @@ dependencies:
   grouped_list: ^4.2.0
   # flutter_slidable: ^1.2.0
   swipe_to: ^1.0.2
+  google_sign_in: ^5.2.4
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/models/user_model.dart';
@@ -194,18 +195,7 @@ class FirebaseController extends GetxController {
     await a.add({});
   }
 
-  Future<String?> registerUser(Map<String, String> m) async {
-    var a = await _store.collection('people').where('email', isEqualTo: m['email']).get();
-    if (a.docs.isNotEmpty) {
-      return 'This user already exists in app';
-    }
-
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: m['email']!, password: m['password']!);
-    } on FirebaseAuthException catch (e) {
-      return 'ERROR: ${e.message!}';
-    }
-
+  Future<void> adduser(Map<String, dynamic> m) async {
     var q = await _store.collection('people').add({
       'cloud_token': 'SOMETHINGLATER',
       'is_online': true,
@@ -219,15 +209,67 @@ class FirebaseController extends GetxController {
     setCurrentUser(u);
   }
 
-  Future<void> signInUser(Map<String, String> m) async {
+  Future<String?> registerUser(Map<String, String> m) async {
+    var a = await _store.collection('people').where('email', isEqualTo: m['email']).get();
+    if (a.docs.isNotEmpty) {
+      return 'This user already exists in app';
+    }
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: m['email']!, password: m['password']!);
+    } on FirebaseAuthException catch (e) {
+      return 'ERROR: ${e.message!}';
+    }
+
+    // var q = await adduser({
+    //   'cloud_token': 'SOMETHINGLATER',
+    //   'is_online': true,
+    //   'email': m['email']!,
+    //   'identifier': m['identifier']!,
+    //   'nickname': m['nickname']!,
+    //   'picture_url': null,
+    // });
+    // var z = await q.get();
+    // var u = UserModel.fromMap(z.id, z.data()!);
+    // setCurrentUser(u);
+    await adduser({
+      'email': m['email'],
+      'identifier': m['identifier'],
+      'nickname': m['nickname'],
+    });
+  }
+
+  Future<String?> signInUser(Map<String, String> m) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: m['email']!, password: m['password']!);
     } on FirebaseAuthException catch (e) {
-      print("LOGIN ERROR");
+      return 'loginerror';
     }
     var a = await _store.collection('people').where('email', isEqualTo: m['email']!).limit(1).get();
     var u = UserModel.fromMap(a.docs[0].id, a.docs[0].data());
     setCurrentUser(u);
+  }
+
+  Future<String?> signInUserGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if(googleUser == null) return null;
+    var a = await _store.collection('people').where('email', isEqualTo: googleUser.email).limit(1).get();
+    if(a.docs.isEmpty) { 
+      return '##' + googleUser.email;
+    }
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    try {
+      await FirebaseAuth.instance.signInWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      return 'logingoogleerror';
+    }
+    var u = UserModel.fromMap(a.docs[0].id, a.docs[0].data());
+    setCurrentUser(u);
+    return null;
   }
 
   Future<void> signOutUser() async {

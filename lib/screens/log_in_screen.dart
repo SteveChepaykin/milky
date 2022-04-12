@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/firebase_controller.dart';
+import 'package:milky/screens/register_google_screen.dart';
 import 'package:milky/screens/register_screen.dart';
 
 class LogInScreen extends StatefulWidget {
@@ -56,22 +57,40 @@ class _LogInScreenState extends State<LogInScreen> {
               const SizedBox(
                 height: 30,
               ),
-              TextButton.icon(
-                onPressed: () {
-                  if (emailcont.text.isNotEmpty && paaswordcont.text.isNotEmpty) {
-                    Get.find<FirebaseController>().signInUser({
-                      'email': emailcont.text,
-                      'password': paaswordcont.text,
-                    });
-                  }
-                },
-                icon: const Icon(Icons.account_box),
-                label: const Text('LOG IN'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      if (emailcont.text.isNotEmpty && paaswordcont.text.isNotEmpty) {
+                        Get.find<FirebaseController>().signInUser({
+                          'email': emailcont.text,
+                          'password': paaswordcont.text,
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.account_box),
+                    label: const Text('LOG IN'),
+                  ),
+                  TextButton.icon(
+                    onPressed: checkOrLoginGoogle,
+                    icon: const Icon(Icons.compare),
+                    label: const Text('LOG IN WITH GOOGLE'),
+                  ),
+                ],
               )
             ],
           ),
         ),
       ),
     );
+  }
+
+  void checkOrLoginGoogle() async {
+    String? res = await Get.find<FirebaseController>().signInUserGoogle();
+    if(res == null) return;
+    if(res.startsWith('##')) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => RegisterGoogleScreen(email: res.substring(2),),),);
+    }
   }
 }
