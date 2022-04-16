@@ -3,10 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:milky/controllers/firebase_controller.dart';
 import 'package:get/get.dart';
+import 'package:milky/controllers/settings_controller.dart';
 import 'package:milky/models/user_model.dart';
 import 'package:milky/screens/home_chats_screen.dart';
 import 'package:milky/screens/log_in_screen.dart';
-import 'package:milky/screens/register_screen.dart';
+import 'package:milky/controllers/crypt_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,8 +15,11 @@ void main() async {
   var fcont = FirebaseController();
   fcont.listenUserAuthState();
   var rcont = ChatRoomController();
+  var setcont = SettingsController();
+  await setcont.init();
   Get.put<FirebaseController>(fcont);
   Get.put<ChatRoomController>(rcont);
+  Get.put<SettingsController>(setcont);
   runApp(const MyApp());
 }
 

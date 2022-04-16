@@ -11,6 +11,7 @@ class ChatRoom {
   late final RoomPurpose purpose;
   late final String? hostid;
   late final String? name;
+  late final String? roomphoto;
   // late DateTime? lastmessageTS;
   // late String? lastmessagesenderID;
   // late String? lastmessage;
@@ -32,6 +33,7 @@ class ChatRoom {
     }
     usersids = map['user_ids'] != null ? (map['user_ids'] as List<dynamic>).map((e) => e.toString()).toList() : throw 'NEED USERS IN CHAT $id';
     hostid = map['host_id'] != null ? map['host_id'] as String : null;
+    roomphoto  = map['roomphoto'] != null ? map['roomphoto'] as String : null;
     name = map['name'] != null ? map['name'] as String : null;
     lastmessageid = map['lastmessageid'] != null ? map['lastmessageid'] as String : null;
     // lastmessage = lm;

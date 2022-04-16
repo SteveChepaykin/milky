@@ -14,7 +14,7 @@ class ChatDetailsScreen extends StatelessWidget {
         var a = roomcont.thischatroom!.roomusers.values.toList()[index];
         return ListTile(
           title: Text(a.nickname),
-          leading: CircleAvatar(backgroundImage: NetworkImage(a.profilepicUrl!),),
+          leading: CircleAvatar(backgroundImage: NetworkImage(a.profilepicUrl != null ? a.profilepicUrl! : 'http://assets.stickpng.com/thumbs/585e4beacb11b227491c3399.png'),),
         );
       },
       itemCount: roomcont.thischatroom!.roomusers.length,),

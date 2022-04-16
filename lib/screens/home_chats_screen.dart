@@ -6,9 +6,9 @@ import 'package:milky/controllers/firebase_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/screens/chat_screen.dart';
-import 'package:milky/screens/create_screen.dart';
 import 'package:milky/screens/search_screen.dart';
 import 'package:milky/widgets/creation_alert_dialog.dart';
+import 'package:milky/widgets/user_locker.dart';
 
 class HomeChatsScreen extends StatefulWidget {
   const HomeChatsScreen({Key? key}) : super(key: key);
@@ -40,23 +40,21 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const UserLocker(),
       appBar: AppBar(
+        title: const Text('Milky'),
         actions: [
           IconButton(
             onPressed: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (_) => const OnBoardCreateScreen(),
-              //   ),
-              // );
               showDialog(context: context, builder: (_) => const CreationAlertDialog());
             },
             icon: const Icon(Icons.add),
           ),
-          IconButton(onPressed: () async {
-            await Get.find<FirebaseController>().signOutUser();
-          }, icon: const Icon(Icons.exit_to_app))
+          // IconButton(
+          //     onPressed: () async {
+          //       await Get.find<FirebaseController>().signOutUser();
+          //     },
+          //     icon: const Icon(Icons.exit_to_app))
         ],
       ),
       body: StreamBuilder<List<ChatRoom>>(
@@ -83,8 +81,12 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
                     a.roomusers = rsnapshot.data!['roomusers'];
                   }
                   return ListTile(
-                    leading: const CircleAvatar(
-                      backgroundImage: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRt110PWYr_eqwfC-rgM7A_ceWC0aIYQvx0Q&usqp=CAU'),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                          a.roomphoto != null
+                              ? a.roomphoto!
+                              : 'http://assets.stickpng.com/thumbs/585e4beacb11b227491c3399.png',
+                          scale: 1),
                     ),
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

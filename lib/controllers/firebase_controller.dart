@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:milky/controllers/crypt_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/models/user_model.dart';
@@ -124,13 +125,13 @@ class FirebaseController extends GetxController {
     var a = _store.collection('chatrooms').doc(cr.id);
     var b = await a.collection('messages').add({
       'sentbyid': currentUser!.id,
-      'messagetext': m['messagetext'],
+      'messagetext': Crypter.encryptAES(m['messagetext']),
       'timestamp': DateTime.now(),
       'senttotoken': m['senttotoken'],
       // 'replytextid': m['replytextid'],
       if (m['replymessage'] != null)
         'replymessage': {
-          'message': m['replymessage'],
+          'message': Crypter.encryptAES(m['replymessage']),
           'authorid': m['replyauthorid'],
         }
       // 'messageimageurl': m['messageimageurl'],
@@ -190,9 +191,18 @@ class FirebaseController extends GetxController {
     await a.add({});
   }
 
-  Future<void> createChannel() async {
+  Future<void> createChannel(String name) async {
     var a = _store.collection('chatrooms');
-    await a.add({});
+    await a.add({
+      'host_id': currentUser!.id,
+      'lastmessageid': null,
+      'name': name,
+      'purpose': 2,
+      'user_ids': [
+        currentUser!.id,
+      ],
+      'roomphoto': null
+    });
   }
 
   Future<void> adduser(Map<String, dynamic> m) async {
@@ -220,34 +230,24 @@ class FirebaseController extends GetxController {
     } on FirebaseAuthException catch (e) {
       return 'ERROR: ${e.message!}';
     }
-
-    // var q = await adduser({
-    //   'cloud_token': 'SOMETHINGLATER',
-    //   'is_online': true,
-    //   'email': m['email']!,
-    //   'identifier': m['identifier']!,
-    //   'nickname': m['nickname']!,
-    //   'picture_url': null,
-    // });
-    // var z = await q.get();
-    // var u = UserModel.fromMap(z.id, z.data()!);
-    // setCurrentUser(u);
     await adduser({
       'email': m['email'],
       'identifier': m['identifier'],
       'nickname': m['nickname'],
     });
+    return null;
   }
 
   Future<String?> signInUser(Map<String, String> m) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: m['email']!, password: m['password']!);
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (_) {
       return 'loginerror';
     }
     var a = await _store.collection('people').where('email', isEqualTo: m['email']!).limit(1).get();
     var u = UserModel.fromMap(a.docs[0].id, a.docs[0].data());
     setCurrentUser(u);
+    return null;
   }
 
   Future<String?> signInUserGoogle() async {
@@ -264,7 +264,7 @@ class FirebaseController extends GetxController {
     );
     try {
       await FirebaseAuth.instance.signInWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (_) {
       return 'logingoogleerror';
     }
     var u = UserModel.fromMap(a.docs[0].id, a.docs[0].data());

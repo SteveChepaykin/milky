@@ -29,16 +29,30 @@ class _ChatScreenState extends State<ChatScreen> {
     var roomcont = Get.find<ChatRoomController>();
     return Scaffold(
       appBar: AppBar(
-        title: GestureDetector(
-          child: Text(roomcont.thischatroom!.id),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ChatDetailsScreen(),
+        title: Row(
+          children: [
+            GestureDetector(
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    roomcont.thischatroom!.roomphoto != null
+                        ? roomcont.thischatroom!.roomphoto!
+                        : 'http://assets.stickpng.com/thumbs/585e4beacb11b227491c3399.png',
+                    scale: 1),
               ),
-            );
-          },
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ChatDetailsScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Text(roomcont.thischatroom!.getname(), overflow: TextOverflow.ellipsis,),
+            )
+          ],
         ),
       ),
       body: Column(

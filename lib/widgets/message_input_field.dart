@@ -91,14 +91,14 @@ class _MessageInputFieldState extends State<MessageInputField> {
           const SizedBox(
             width: 10,
           ),
-          if (messagecont.text.isEmpty)
-            FloatingActionButton(
-              heroTag: '1',
-              onPressed: () {},
-              // mini: true,
-              child: const Icon(Icons.camera),
-              elevation: 0,
-            ),
+          // if (messagecont.text.isEmpty)
+          //   FloatingActionButton(
+          //     heroTag: '1',
+          //     onPressed: () {},
+          //     // mini: true,
+          //     child: const Icon(Icons.camera),
+          //     elevation: 0,
+          //   ),
           const SizedBox(
             width: 10,
           ),

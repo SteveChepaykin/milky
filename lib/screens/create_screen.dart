@@ -1,82 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:milky/controllers/firebase_controller.dart';
 
-class OnBoardCreateScreen extends StatefulWidget {
-  const OnBoardCreateScreen({Key? key}) : super(key: key);
+class CreateRoomScreen extends StatefulWidget {
+  const CreateRoomScreen({Key? key}) : super(key: key);
 
   @override
-  State<OnBoardCreateScreen> createState() => _OnBoardCreateScreenState();
+  State<CreateRoomScreen> createState() => _CreateRoomScreenState();
 }
 
-class _OnBoardCreateScreenState extends State<OnBoardCreateScreen> {
+class _CreateRoomScreenState extends State<CreateRoomScreen> {
+  final TextEditingController namecont = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('create'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'create:',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.bold,
+            TextField(
+              controller: namecont,
+              decoration: const InputDecoration(
+                hintText: 'channel name...',
+                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 30,
             ),
-            createContainer(
-                () {},
-                const Icon(
-                  Icons.account_box,
-                  size: 50,
-                ),
-                'GROUP'),
-            const SizedBox(
-              height: 20,
+            TextButton.icon(
+              onPressed: () async {
+                await Get.find<FirebaseController>().createChannel(namecont.text).whenComplete(
+                  () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('CREATED'),
+                          content: Text('channel ${namecont.text} created successfully.'),
+                          actions: [
+                            TextButton.icon(
+                              onPressed: () {
+                                Navigator.popUntil(context, (route) => route.isFirst);
+                              },
+                              icon: const Icon(Icons.close),
+                              label: const Text('back'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+              icon: const Icon(Icons.create),
+              label: const Text('create channel'),
             ),
-            createContainer(
-                () {},
-                const Icon(
-                  Icons.ac_unit,
-                  size: 50,
-                ),
-                'CHANNEL'),
           ],
         ),
       ),
     );
   }
-
-  Widget createContainer(Function() funk, Icon icon, String t) => Expanded(
-        child: GestureDetector(
-          onTap: funk,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: Color.fromARGB(134, 158, 158, 158),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  icon,
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    t,
-                    style: const TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
 }
