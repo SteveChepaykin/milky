@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:milky/controllers/crypt_controller.dart';
 import 'package:milky/controllers/firebase_controller.dart';
 
 class Message {
@@ -14,7 +15,7 @@ class Message {
   // late final bool isread;
 
   Message.fromMap(this.id, Map<String, dynamic> map) {
-    messagetext = map['messagetext'] != null ? map['messagetext'] as String : throw 'NEED MESSAGE IN $id';
+    messagetext = map['messagetext'] != null ? Crypter.decryptAES(map['messagetext'] as String) : throw 'NEED MESSAGE IN $id';
     timestamp =
         map['timestamp'] != null ? DateTime.fromMillisecondsSinceEpoch((map['timestamp'] as Timestamp).millisecondsSinceEpoch) : throw 'NEED DATETIME IN $id';
     sentbyid = map['sentbyid'] != null ? map['sentbyid'] as String : throw 'NEED SENDER IN $id';
@@ -22,7 +23,7 @@ class Message {
     // replytextid = map['replytextid'] != null ? map['replytextid'] as String : null;
     replymap = map['replymessage'] != null
         ? {
-            'message': (map['replymessage'] as Map<String, dynamic>)['message'] as String,
+            'message': Crypter.decryptAES((map['replymessage'] as Map<String, dynamic>)['message'] as String),
             'authorid': (map['replymessage'] as Map<String, dynamic>)['authorid'] as String,
           }
         : null;

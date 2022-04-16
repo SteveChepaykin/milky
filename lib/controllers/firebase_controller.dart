@@ -219,6 +219,17 @@ class FirebaseController extends GetxController {
     setCurrentUser(u);
   }
 
+  Future<void> joinChannel(ChatRoom room) async {
+    var a = _store.collection('chatrooms').doc(room.id);
+    var b = (await a.get()).data()!['user_ids'];
+    await a.update({
+      'user_ids': [
+        ...(b),
+        currentUser!.id,
+      ]
+    });
+  }
+
   Future<String?> registerUser(Map<String, String> m) async {
     var a = await _store.collection('people').where('email', isEqualTo: m['email']).get();
     if (a.docs.isNotEmpty) {

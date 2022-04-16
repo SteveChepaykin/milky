@@ -50,7 +50,10 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(width: 20),
             Expanded(
-              child: Text(roomcont.thischatroom!.getname(), overflow: TextOverflow.ellipsis,),
+              child: Text(
+                roomcont.thischatroom!.getname(),
+                overflow: TextOverflow.ellipsis,
+              ),
             )
           ],
         ),
@@ -93,6 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   itemBuilder: (context, message) {
                     return SwipeTo(
+                      key: ValueKey(message.id),
                       child: MessageBubble(
                         key: ValueKey(message.id),
                         thismessage: message,
@@ -113,7 +117,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Container(
                     height: 40,
                     width: double.infinity,
-                    child: const Center(child: Text('you cant send messages here.')),
+                    child: roomcont.thischatroom!.usersids.contains(Get.find<FirebaseController>().currentUser!.id)
+                        ? const Center(child: Text('you cant send messages here.'))
+                        : Center(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                Get.find<FirebaseController>().joinChannel(roomcont.thischatroom!);
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.accessibility_new),
+                              label: const Text('join channel'),
+                            ),
+                          ),
                     color: Colors.grey,
                   ),
                 )

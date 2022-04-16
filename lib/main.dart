@@ -7,7 +7,6 @@ import 'package:milky/controllers/settings_controller.dart';
 import 'package:milky/models/user_model.dart';
 import 'package:milky/screens/home_chats_screen.dart';
 import 'package:milky/screens/log_in_screen.dart';
-import 'package:milky/controllers/crypt_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

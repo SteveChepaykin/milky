@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
-import 'package:milky/controllers/crypt_controller.dart';
+import 'package:milky/controllers/firebase_controller.dart';
 import 'package:milky/controllers/settings_controller.dart';
+import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -25,7 +26,7 @@ class MessageBubble extends StatelessWidget {
       child: GestureDetector(
         onLongPressEnd: (_) {
           Clipboard.setData(
-            ClipboardData(text: Crypter.decryptAES(thismessage.messagetext),),
+            ClipboardData(text: thismessage.messagetext),
           );
         },
         child: Container(
@@ -45,6 +46,14 @@ class MessageBubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (roomcont.thischatroom!.purpose != RoomPurpose.chat)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2.0),
+                  child: Text(
+                    thismessage.sentbyid == Get.find<FirebaseController>().currentUser!.id ? 'You' : roomcont.thischatroom!.roomusers[thismessage.sentbyid]!.nickname,
+                    style: TextStyle(fontSize: size! - 1, fontWeight: FontWeight.bold),
+                  ),
+                ),
               if (thismessage.replymap != null)
                 IntrinsicWidth(
                   child: Container(
@@ -82,7 +91,7 @@ class MessageBubble extends StatelessWidget {
                                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: size! - 2),
                                   ),
                                   Text(
-                                    Crypter.decryptAES(thismessage.replymap!['message']!),
+                                    thismessage.replymap!['message']!,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 2,
                                     style: TextStyle(fontSize: size - 2),
@@ -97,9 +106,9 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.only(bottom: 4, top: 3),
                 child: Text(
-                  Crypter.decryptAES(thismessage.messagetext),
+                  thismessage.messagetext,
                   style: TextStyle(fontSize: size),
                 ),
               ),
