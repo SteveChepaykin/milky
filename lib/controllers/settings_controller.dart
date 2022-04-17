@@ -1,3 +1,4 @@
+// import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,4 +45,8 @@ class SettingsController extends GetxController {
   bool? getDarkmode() {
     return prefs.containsKey(darkkey) ? prefs.getBool(darkkey) : false;
   }
+
+  // Map<String, Color> colorsMap() {
+  //   return getDarkmode()! ? ColorChemes.schemesMap['dark']! : ColorChemes.schemesMap['light']!;
+  // }
 }

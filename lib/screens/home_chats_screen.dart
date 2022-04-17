@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:milky/controllers/firebase_controller.dart';
+// import 'package:milky/controllers/settings_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/screens/chat_screen.dart';
@@ -18,9 +19,12 @@ class HomeChatsScreen extends StatefulWidget {
 }
 
 class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingObserver {
+  // late final colmap;
+
   @override
   void initState() {
     WidgetsBinding.instance!.addObserver(this);
+    // colmap = Get.find<SettingsController>().colorsMap();
     super.initState();
   }
 
@@ -101,6 +105,8 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
                     subtitle: lm != null
                         ? Text(
                             lm.messagetext,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           )
                         : const Text(''),
                     onTap: () {

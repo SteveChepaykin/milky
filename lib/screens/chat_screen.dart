@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:milky/controllers/firebase_controller.dart';
+// import 'package:milky/controllers/settings_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/screens/chat_details_screen.dart';
@@ -23,6 +24,14 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController messagecont = TextEditingController();
   // Message? replymessage;
+  bool canEnter = true;
+  // late final colmap;
+
+  @override
+  void initState() {
+    // colmap = Get.find<SettingsController>().colorsMap();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +58,15 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
             const SizedBox(width: 20),
-            Expanded(
-              child: Text(
-                roomcont.thischatroom!.getname(),
-                overflow: TextOverflow.ellipsis,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  roomcont.thischatroom!.getname(),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (roomcont.thischatroom!.purpose != RoomPurpose.chat) Text('${roomcont.thischatroom!.usersids.length} members', style: const TextStyle(fontSize: 14),)
+              ],
             )
           ],
         ),
@@ -119,16 +132,19 @@ class _ChatScreenState extends State<ChatScreen> {
                     width: double.infinity,
                     child: roomcont.thischatroom!.usersids.contains(Get.find<FirebaseController>().currentUser!.id)
                         ? const Center(child: Text('you cant send messages here.'))
-                        : Center(
+                        : canEnter ? Center(
                             child: TextButton.icon(
-                              onPressed: () {
-                                Get.find<FirebaseController>().joinChannel(roomcont.thischatroom!);
-                                setState(() {});
+                              onPressed: () async {
+                                await Get.find<FirebaseController>().joinChannel(roomcont.thischatroom!).whenComplete(() {
+                                  setState(() {
+                                    canEnter = false;
+                                  });
+                                });
                               },
                               icon: const Icon(Icons.accessibility_new),
                               label: const Text('join channel'),
                             ),
-                          ),
+                          ) : const Center(child: Text('you cant send messages here.')),
                     color: Colors.grey,
                   ),
                 )

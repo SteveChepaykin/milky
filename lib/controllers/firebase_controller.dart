@@ -59,7 +59,7 @@ class FirebaseController extends GetxController {
   Future<Map<String, dynamic>> getChatRoomInfo(ChatRoom cr) async {
     var a = _store.collection('chatrooms').doc(cr.id);
     Message? lm;
-    Map<String, UserModel> lru = {};
+    // Map<String, UserModel> lru = {};
 
     if (cr.lastmessageid != null) {
       var x = await a.collection('messages').doc(cr.lastmessageid).get();
@@ -70,19 +70,25 @@ class FirebaseController extends GetxController {
 
     var ab = await a.get();
     if (ab.data()!['purpose'] != 2) {
+      Map<String, UserModel> lru = {};
       for (var u in ab.data()!['user_ids']) {
         var z = await getUserByID(u);
-        lru[u] = z;
+        lru[z.id] = z;
       }
-    } else {
+      return {
+        'lastmessage': lm,
+        'roomusers': lru,
+      };
+    } 
+    else {
+      Map<String, UserModel> lru = {};
       var z = await getUserByID(ab.data()!['host_id']);
       lru[z.id] = z;
-    }
-
-    return {
-      'lastmessage': lm,
-      'roomusers': lru,
-    };
+      return {
+        'lastmessage': lm,
+        'roomusers': lru,
+      };
+    } 
   }
 
   // Future<Message> getMessageByID(ChatRoom cr, String id) async {
@@ -263,9 +269,9 @@ class FirebaseController extends GetxController {
 
   Future<String?> signInUserGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    if(googleUser == null) return null;
+    if (googleUser == null) return null;
     var a = await _store.collection('people').where('email', isEqualTo: googleUser.email).limit(1).get();
-    if(a.docs.isEmpty) { 
+    if (a.docs.isEmpty) {
       return '##' + googleUser.email;
     }
     final GoogleSignInAuthentication googleAuth = await googleUser.authentication;

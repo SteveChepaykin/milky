@@ -105,7 +105,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         : const Text(''),
                     onTap: () {
                       Get.find<ChatRoomController>().setChatRoom(a);
-                      Navigator.push(
+                      // Navigator.pop(context);
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const ChatScreen(),
@@ -143,9 +144,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 itemBuilder: (context, index) {
                   var a = snapshot.data![index];
                   return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(a.profilepicUrl!),
-                    ),
+                    // leading: CircleAvatar(
+                    //   backgroundImage: NetworkImage(a.profilepicUrl != null ? a.profilepicUrl! : 'http://assets.stickpng.com/thumbs/585e4beacb11b227491c3399.png'),
+                    // ),
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

@@ -4,9 +4,11 @@ import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:milky/controllers/firebase_controller.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/settings_controller.dart';
+import 'package:milky/models/color_schemes.dart';
 import 'package:milky/models/user_model.dart';
 import 'package:milky/screens/home_chats_screen.dart';
 import 'package:milky/screens/log_in_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,21 +29,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: StreamBuilder<UserModel?>(
-        stream: Get.find<FirebaseController>().currentUser$.stream,
-        builder: (context, snapshot) {
-          if(!snapshot.hasData) {
-            return const LogInScreen();
-          }
-          return const HomeChatsScreen();
-        },
-      ),
+    return ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      builder: (context, _) {
+        final themeprov = Provider.of<ThemeProvider>(context,);
+        return MaterialApp(
+          title: 'Flutter Demo',
+          debugShowCheckedModeBanner: false,
+          themeMode: themeprov.thememode,
+          theme: MyThemes.lightTheme,
+          darkTheme: MyThemes.darkTheme,
+          home: StreamBuilder<UserModel?>(
+            stream: Get.find<FirebaseController>().currentUser$.stream,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const LogInScreen();
+              }
+              return const HomeChatsScreen();
+            },
+          ),
+        );
+      },
     );
   }
 }

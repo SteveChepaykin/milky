@@ -18,7 +18,7 @@ class UserLocker extends StatelessWidget {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const AccountScreen()));
             },
             child: Container(
-              color: Colors.blue,
+              color: Theme.of(context).cardColor,
               height: MediaQuery.of(context).size.height * 0.2,
               width: double.infinity,
               child: Padding(

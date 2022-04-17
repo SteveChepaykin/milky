@@ -2,6 +2,7 @@ import 'package:encrypt/encrypt.dart' as crypt;
 
 class Crypter {
   static final key = crypt.Key.fromLength(32);
+  // static final key1 = crypt.Key.fromBase64('');
   static final iv = crypt.IV.fromLength(16);
   static final encrypter = crypt.Encrypter(crypt.AES(key));
 

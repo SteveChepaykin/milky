@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/settings_controller.dart';
+import 'package:milky/models/color_schemes.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -12,18 +14,22 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController cont = TextEditingController();
   final TextEditingController spdcont = TextEditingController();
+  late bool isDark;
+  
 
   @override
   void initState() {
     var a = Get.find<SettingsController>();
     cont.text = a.getSize().toString();
     spdcont.text = a.getRadius()!.toString();
+    isDark = a.getDarkmode()!;
     // rad = a.getRadius()!;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -76,14 +82,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(
                 height: 30,
               ),
+              Switch(
+                  value: themeProvider.isDarkmode,
+                  onChanged: (v) {
+                    // isDark = !isDark;
+                    // setState(() {
+                      
+                    // });
+                    final prov = Provider.of<ThemeProvider>(context, listen: false);
+                    prov.toggleTheme(v);
+                  }),
               TextButton.icon(
                 onPressed: () {
                   var a = Get.find<SettingsController>();
-                  // a.changeFontSize(int.parse(cont.text));
                   a.setSize(double.parse(cont.text));
-                  // a.changeSpeed(spd);
                   a.setRadius(double.parse(spdcont.text));
                   Navigator.pop(context);
+                  a.setDarkmode(isDark);
+                  setState(() {});
                 },
                 icon: const Icon(
                   Icons.save,

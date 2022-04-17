@@ -66,6 +66,10 @@ class ChatRoom {
     }
   }
 
+  UserModel getOtherPerson() {
+    return roomusers.values.where((element) => element.id != Get.find<FirebaseController>().currentUser!.id).toList()[0];
+  }
+
   // Future<void> addMessage(Map<String, dynamic> map) async {
   //   await Get.find<FirebaseController>().addMessage(this, map);
   // }
