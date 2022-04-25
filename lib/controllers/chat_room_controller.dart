@@ -4,7 +4,7 @@ import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 
 class ChatRoomController extends GetxController {
-  ChatRoom? thischatroom;
+  ChatRoom? _thischatroom;
   Message? replymessage;
   String? messageimageurl;
   // bool isreplying = false;
@@ -14,6 +14,8 @@ class ChatRoomController extends GetxController {
   //   // replying$ = isreplying.obs;
   // }
 
+  ChatRoom? get thischatroom => _thischatroom;
+
   void clear() {
     replymessage = null;
     messageimageurl = null;
@@ -22,7 +24,7 @@ class ChatRoomController extends GetxController {
   }
 
   void setChatRoom(ChatRoom a) {
-    thischatroom = a;
+    _thischatroom = a;
   }
 
   Future<void> addMessage(Map<String, dynamic> map) async {

@@ -57,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
               },
             ),
-            const SizedBox(width: 20),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

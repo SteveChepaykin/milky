@@ -39,14 +39,23 @@ class ThemeProvider extends ChangeNotifier {
 
 class MyThemes {
   static final lightTheme = ThemeData(
-    scaffoldBackgroundColor: Colors.white,
-    primaryColor: Color.fromARGB(255, 220, 193, 111),
-    colorScheme: const ColorScheme.light(),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 132, 200, 255),
+    // primaryColor: const Color.fromARGB(255, 220, 193, 111),
+    colorScheme: const ColorScheme.light(
+      primary: Color.fromARGB(255, 23, 114, 188),
+      secondary: Color.fromARGB(255, 36, 127, 202),
+      tertiary: Color.fromARGB(255, 44, 97, 211),
+    ),
   );
 
   static final darkTheme = ThemeData(
-    scaffoldBackgroundColor: Colors.grey[800],
-    primaryColor: Color.fromARGB(255, 220, 193, 111),
-    colorScheme: const ColorScheme.dark(),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 1, 11, 30),
+    // primaryColor: Color.fromARGB(255, 3, 40, 92),
+    appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 5, 43, 96),),
+    colorScheme: const ColorScheme.dark(
+      primary: Color.fromARGB(255, 90, 151, 197),
+      secondary: Color.fromARGB(255, 5, 43, 96),
+      tertiary: Color.fromARGB(255, 10, 10, 93),
+    ),
   );
 }

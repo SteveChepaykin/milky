@@ -5,7 +5,6 @@ import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:milky/controllers/firebase_controller.dart';
 // import 'package:milky/controllers/settings_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
-import 'package:milky/models/message_model.dart';
 import 'package:milky/screens/chat_screen.dart';
 import 'package:milky/screens/search_screen.dart';
 import 'package:milky/widgets/creation_alert_dialog.dart';
@@ -73,52 +72,40 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
           return ListView.builder(
             itemBuilder: (context, index) {
               ChatRoom a = snapshot.data![index];
-              return FutureBuilder<Map<String, dynamic>>(
-                future: Get.find<FirebaseController>().getChatRoomInfo(a),
-                builder: (context, rsnapshot) {
-                  if (!rsnapshot.hasData) {
-                    return const ListTile();
-                  }
-                  late Message? lm;
-                  if (rsnapshot.data!.isNotEmpty) {
-                    lm = rsnapshot.data!['lastmessage'];
-                    a.roomusers = rsnapshot.data!['roomusers'];
-                  }
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          a.roomphoto != null
-                              ? a.roomphoto!
-                              : 'http://assets.stickpng.com/thumbs/585e4beacb11b227491c3399.png',
-                          scale: 1),
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    a.roomphoto != null ? a.roomphoto! : 'http://assets.stickpng.com/thumbs/585e4beacb11b227491c3399.png',
+                    scale: 1,
+                  ),
+                ),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(a.getname()),
+                    if (a.lastmessage != null)
+                      Text(
+                        DateFormat.Hm().format(a.lastmessage!.timestamp),
+                      ),
+                  ],
+                ),
+                subtitle: a.lastmessage != null
+                    ? Text(
+                        a.lastmessage!.messagetext,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : const Text(''),
+                onTap: () {
+                  Get.find<ChatRoomController>().setChatRoom(a);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChatScreen(),
                     ),
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(a.getname()),
-                        if (lm != null)
-                          Text(
-                            DateFormat.Hm().format(lm.timestamp),
-                          ),
-                      ],
-                    ),
-                    subtitle: lm != null
-                        ? Text(
-                            lm.messagetext,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        : const Text(''),
-                    onTap: () {
-                      Get.find<ChatRoomController>().setChatRoom(a);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ChatScreen(),
-                        ),
-                      );
-                    },
-                  );
+                  ).whenComplete(() {
+                    Get.find<ChatRoomController>().clear();
+                  });
                 },
               );
             },

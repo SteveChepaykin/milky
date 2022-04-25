@@ -12,7 +12,9 @@ class CreationAlertDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateRoomScreen(isGroup: true,)));
+            },
             title: const Text('GROUP'),
             subtitle: const Text('creates a group - a lot of talking users.'),
             leading: const Icon(
@@ -22,7 +24,7 @@ class CreationAlertDialog extends StatelessWidget {
           ),
           ListTile(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateRoomScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateRoomScreen(isGroup: false,)));
             },
             title: const Text('CHANNEL'),
             subtitle: const Text('creates a channel - a lot of users listening to one host.'),

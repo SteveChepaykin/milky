@@ -28,10 +28,15 @@ class FirebaseController extends GetxController {
   }
 
   Stream<List<ChatRoom>> getChatRooms() {
-    return _store.collection('chatrooms').where('user_ids', arrayContains: currentUser!.id).snapshots().map((event) {
+    return _store.collection('chatrooms').where('user_ids', arrayContains: currentUser!.id).snapshots().asyncMap((event) async {
       List<ChatRoom> lc = [];
       for (var r in event.docs) {
-        lc.add(ChatRoom.fromMap(r.id, r.data()));
+        var cr = ChatRoom.fromMap(r.id, r.data());
+        var info = await getChatRoomInfo(cr);
+        cr.lastmessage = info['lastmessage'];
+        cr.roomusers = info['roomusers'];
+        lc.add(cr);
+        await cr.init();
       }
       return lc;
     });
@@ -68,27 +73,34 @@ class FirebaseController extends GetxController {
       lm = null;
     }
 
-    var ab = await a.get();
-    if (ab.data()!['purpose'] != 2) {
-      Map<String, UserModel> lru = {};
-      for (var u in ab.data()!['user_ids']) {
+    Map<String, UserModel> lru = {};
+
+    // var ab = await a.get();
+    // if (ab.data()!['purpose'] != 2) {
+    //   for (var u in ab.data()!['user_ids']) {
+    //     var z = await getUserByID(u);
+    //     lru[z.id] = z;
+    //   }
+    // } else {
+    //   // Map<String, UserModel> lru = {};
+    //   var z = await getUserByID(ab.data()!['host_id']);
+    //   lru[z.id] = z;
+    // }
+
+    if (cr.purpose != RoomPurpose.channel) {
+      for (var u in cr.usersids) {
         var z = await getUserByID(u);
         lru[z.id] = z;
       }
-      return {
-        'lastmessage': lm,
-        'roomusers': lru,
-      };
-    } 
-    else {
-      Map<String, UserModel> lru = {};
-      var z = await getUserByID(ab.data()!['host_id']);
+    } else {
+      var z = await getUserByID(cr.hostid!);
       lru[z.id] = z;
-      return {
-        'lastmessage': lm,
-        'roomusers': lru,
-      };
-    } 
+    }
+
+    return {
+      'lastmessage': lm,
+      'roomusers': lru,
+    };
   }
 
   // Future<Message> getMessageByID(ChatRoom cr, String id) async {
@@ -171,6 +183,18 @@ class FirebaseController extends GetxController {
     return res;
   }
 
+  Future<List<UserModel>> findYourUsers() async {
+    // if (query.isEmpty || (query.startsWith('@') && query.length == 1)) return [];
+    var a = await _store.collection('chatrooms').where('purpose', isEqualTo: 0).where('user_ids', arrayContains: currentUser!.id).get();
+    List<UserModel> res = [];
+    for (var u in a.docs) {
+      var otherID = (u['user_ids'] as List<dynamic>).map((e) => e.toString()).firstWhere((element) => element != currentUser!.id);
+      var otheruser = await getUserByID(otherID);
+      res.add(otheruser);
+    }
+    return res;
+  }
+
   // Future<UserModel> getUserByID(String id) async {
   //   var a = await _store.collection('people').doc(id).get();
   //   return UserModel.fromMap(a.id, a.data()!);
@@ -188,13 +212,25 @@ class FirebaseController extends GetxController {
   }
 
   Future<bool> checkExistance(UserModel u) async {
-    var a = await _store.collection('chatrooms').where('user_ids', isEqualTo: [currentUser!.id, u.id]).get();
+    var a = await _store.collection('chatrooms').where('user_ids', isEqualTo: [currentUser!.id, u.id]).where('purpose', isEqualTo: 0).get();
     return a.docs.isNotEmpty;
   }
 
-  Future<void> createGroup() async {
+  Future<void> createGroup(String name, List<UserModel> users) async {
     var a = _store.collection('chatrooms');
-    await a.add({});
+    if (users.isNotEmpty) {
+      await a.add({
+        'host_id': currentUser!.id,
+        'lastmessageid': null,
+        'name': name,
+        'purpose': 1,
+        'user_ids': [
+          ...users.map((e) => e.id).toList(),
+          currentUser!.id,
+        ],
+        'roomphoto': null,
+      });
+    }
   }
 
   Future<void> createChannel(String name) async {

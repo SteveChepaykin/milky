@@ -17,7 +17,14 @@ class ChatRoom {
   // late String? lastmessage;
   late String? lastmessageid;
   Message? lastmessage;
-  Map<String, UserModel> roomusers = {};
+  final Map<String, UserModel> _roomusers = {};
+
+  Map<String, UserModel> get roomusers => _roomusers;
+
+  set roomusers (Map<String, UserModel> val) {
+    _roomusers.clear();
+    _roomusers.addAll(val);
+  }
 
   ChatRoom.fromMap(this.id, Map<String, dynamic> map,) {
     // purpose = map['purpose'] != null ? prps((map['purpose'] as double).round()) : throw 'NEED PURPOSE IN CHAT $id';
@@ -43,10 +50,17 @@ class ChatRoom {
   //   return 
   // }
 
+  Future<void> init() async {
+    var m = await Get.find<FirebaseController>().getChatRoomInfo(this);
+    lastmessage = m['lastmessage'];
+    roomusers = m['roomusers'];
+  }
+
   String getname() {
     if(purpose == RoomPurpose.chat) {
       Map<String, UserModel> other = roomusers;
       other.removeWhere((key, value) => key == Get.find<FirebaseController>().currentUser!.id);
+      // roomusers.addAll();
       return other.values.toList()[0].nickname;
     } else {
       return name!;
@@ -66,9 +80,9 @@ class ChatRoom {
     }
   }
 
-  UserModel getOtherPerson() {
-    return roomusers.values.where((element) => element.id != Get.find<FirebaseController>().currentUser!.id).toList()[0];
-  }
+  // UserModel getOtherPerson() {
+  //   return roomusers.values.where((element) => element.id != Get.find<FirebaseController>().currentUser!.id).toList()[0];
+  // }
 
   // Future<void> addMessage(Map<String, dynamic> map) async {
   //   await Get.find<FirebaseController>().addMessage(this, map);

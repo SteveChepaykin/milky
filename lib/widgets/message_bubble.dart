@@ -3,10 +3,12 @@ import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:milky/controllers/firebase_controller.dart';
 import 'package:milky/controllers/settings_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
+import 'package:milky/models/color_schemes.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message thismessage;
@@ -15,8 +17,11 @@ class MessageBubble extends StatelessWidget {
     required this.thismessage,
   }) : super(key: key);
 
+  
+
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Provider.of<ThemeProvider>(context, listen: false).isDarkmode ? MyThemes.darkTheme : MyThemes.lightTheme;
     final roomcont = Get.find<ChatRoomController>();
     final rad = Get.find<SettingsController>().getRadius();
     final size = Get.find<SettingsController>().getSize();
@@ -40,7 +45,7 @@ class MessageBubble extends StatelessWidget {
                   topRight: thismessage.sentByMe() ? const Radius.circular(0) : Radius.circular(rad!),
                   bottomLeft: Radius.circular(rad!),
                   bottomRight: Radius.circular(rad)),
-              color: const Color.fromARGB(255, 54, 159, 245)),
+              color: thismessage.sentByMe() ? theme.colorScheme.secondary : theme.colorScheme.tertiary),
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
           padding: const EdgeInsets.all(8),
           child: Column(
@@ -86,15 +91,15 @@ class MessageBubble extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  roomcont.thischatroom!.purpose != RoomPurpose.chat ? Text(
                                     roomcont.thischatroom!.roomusers[thismessage.replymap!['authorid']]!.nickname,
                                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: size! - 2),
-                                  ),
+                                  ) : const SizedBox(),
                                   Text(
                                     thismessage.replymap!['message']!,
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 2,
-                                    style: TextStyle(fontSize: size - 2),
+                                    style: TextStyle(fontSize: size! - 2),
                                   ),
                                 ],
                               ),

@@ -90,6 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       
                     // });
                     final prov = Provider.of<ThemeProvider>(context, listen: false);
+                    isDark = !isDark;
                     prov.toggleTheme(v);
                   }),
               TextButton.icon(
