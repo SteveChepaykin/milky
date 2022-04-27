@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +8,7 @@ import 'package:milky/controllers/crypt_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/models/user_model.dart';
+import 'package:http/http.dart' as http;
 
 class FirebaseController extends GetxController {
   late final FirebaseFirestore _store;
@@ -123,9 +126,10 @@ class FirebaseController extends GetxController {
         .collection('chatrooms')
         .doc(cr.id)
         .collection('messages')
-        .orderBy(
-          'timestamp',
-        )
+        // .orderBy(
+        //   'timestamp',
+        //   // descending: true,
+        // )
         .snapshots()
         .map((event) {
       List<Message> lm = [];
@@ -135,16 +139,22 @@ class FirebaseController extends GetxController {
         // lm.add(cfk);
         lm.add(Message.fromMap(m.id, m.data()));
       }
+      lm.sort((m1, m2) {
+        return m1.timestamp.compareTo(m2.timestamp);
+      });
       return lm;
     });
   }
 
   Future<void> addMessage(ChatRoom cr, Map<String, dynamic> m) async {
     var a = _store.collection('chatrooms').doc(cr.id);
+    http.Response response = await http.get(Uri.parse("http://worldtimeapi.org/api/timezone/Europe/London"));
+    var file = jsonDecode(response.body);
     var b = await a.collection('messages').add({
       'sentbyid': currentUser!.id,
       'messagetext': Crypter.encryptAES(m['messagetext']),
-      'timestamp': DateTime.now(),
+      // 'timestamp': DateTime.now(),
+      'timestamp': DateTime.parse(file['utc_datetime']),
       'senttotoken': m['senttotoken'],
       // 'replytextid': m['replytextid'],
       if (m['replymessage'] != null)

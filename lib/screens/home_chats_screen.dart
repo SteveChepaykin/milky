@@ -64,7 +64,7 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
         stream: Get.find<FirebaseController>().getChatRooms(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.data!.isEmpty) {
             return const Center(child: Text('No contacts. \n Find some!'));
