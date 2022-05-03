@@ -17,8 +17,6 @@ class MessageBubble extends StatelessWidget {
     required this.thismessage,
   }) : super(key: key);
 
-  
-
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Provider.of<ThemeProvider>(context, listen: false).isDarkmode ? MyThemes.darkTheme : MyThemes.lightTheme;
@@ -47,7 +45,7 @@ class MessageBubble extends StatelessWidget {
                   bottomRight: Radius.circular(rad)),
               color: thismessage.sentByMe() ? theme.colorScheme.secondary : theme.colorScheme.tertiary),
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -55,7 +53,9 @@ class MessageBubble extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 2.0),
                   child: Text(
-                    thismessage.sentbyid == Get.find<FirebaseController>().currentUser!.id ? 'You' : roomcont.thischatroom!.roomusers[thismessage.sentbyid]!.nickname,
+                    thismessage.sentbyid == Get.find<FirebaseController>().currentUser!.id
+                        ? 'You'
+                        : roomcont.thischatroom!.roomusers[thismessage.sentbyid]!.nickname,
                     style: TextStyle(fontSize: size! - 1, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -85,22 +85,31 @@ class MessageBubble extends StatelessWidget {
                             // height: 35,
                           ),
                           const SizedBox(width: 2),
+                          if (thismessage.replymap!['image'] != null)
+                            Image.network(
+                              thismessage.replymap!['image'],
+                              height: 30,
+                            ),
+                          const SizedBox(width: 2),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.all(5.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  roomcont.thischatroom!.purpose != RoomPurpose.chat ? Text(
-                                    roomcont.thischatroom!.roomusers[thismessage.replymap!['authorid']]!.nickname,
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: size! - 2),
-                                  ) : const SizedBox(),
-                                  Text(
-                                    thismessage.replymap!['message']!,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: TextStyle(fontSize: size! - 2),
-                                  ),
+                                  roomcont.thischatroom!.purpose != RoomPurpose.chat
+                                      ? Text(
+                                          roomcont.thischatroom!.roomusers[thismessage.replymap!['authorid']]!.nickname,
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: size! - 2),
+                                        )
+                                      : const SizedBox(),
+                                  if (thismessage.replymap!['message'] != null)
+                                    Text(
+                                      thismessage.replymap!['message']!,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                      style: TextStyle(fontSize: size! - 2),
+                                    ),
                                 ],
                               ),
                             ),
@@ -110,13 +119,21 @@ class MessageBubble extends StatelessWidget {
                     ),
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4, top: 3),
-                child: Text(
-                  thismessage.messagetext,
-                  style: TextStyle(fontSize: size),
+              if (thismessage.messageimageurl != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(rad - 2),
+                  child: Image.network(
+                    thismessage.messageimageurl!,
+                  ),
                 ),
-              ),
+              
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4, top: 3),
+                  child: thismessage.messagetext != null ? Text(
+                    thismessage.messagetext!,
+                    style: TextStyle(fontSize: size),
+                  ) : null,
+                ),
               Text(
                 DateFormat.Hm().format(thismessage.timestamp),
                 style: TextStyle(fontSize: size! - 3),

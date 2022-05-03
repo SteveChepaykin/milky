@@ -100,7 +100,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     subtitle: a.lastmessage != null
                         ? Text(
-                            a.lastmessage!.messagetext,
+                            a.lastmessage!.messagetext != null ? a.lastmessage!.messagetext! : 'photo',
                           )
                         : const Text(''),
                     onTap: () {

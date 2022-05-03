@@ -148,21 +148,21 @@ class FirebaseController extends GetxController {
 
   Future<void> addMessage(ChatRoom cr, Map<String, dynamic> m) async {
     var a = _store.collection('chatrooms').doc(cr.id);
-    http.Response response = await http.get(Uri.parse("http://worldtimeapi.org/api/timezone/Europe/London"));
-    var file = jsonDecode(response.body);
+    // http.Response response = await http.get(Uri.parse("http://worldtimeapi.org/api/timezone/Europe/London"));
+    // var file = jsonDecode(response.body);
     var b = await a.collection('messages').add({
       'sentbyid': currentUser!.id,
-      'messagetext': Crypter.encryptAES(m['messagetext']),
-      // 'timestamp': DateTime.now(),
-      'timestamp': DateTime.parse(file['utc_datetime']),
+      'messagetext': m['messagetext'] != null ? Crypter.encryptAES(m['messagetext']) : null,
+      'timestamp': DateTime.now(),
+      // 'timestamp': DateTime.parse(file['utc_datetime']),
       'senttotoken': m['senttotoken'],
-      // 'replytextid': m['replytextid'],
       if (m['replymessage'] != null)
         'replymessage': {
           'message': Crypter.encryptAES(m['replymessage']),
           'authorid': m['replyauthorid'],
-        }
-      // 'messageimageurl': m['messageimageurl'],
+          'image': m['replyimageurl'],
+        },
+      'messageimageurl': m['messageimageurl'],
     });
     await a.update({
       'lastmessageid': b.id,

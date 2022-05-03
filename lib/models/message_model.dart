@@ -5,7 +5,7 @@ import 'package:milky/controllers/firebase_controller.dart';
 
 class Message {
   final String id;
-  late final String messagetext;
+  late final String? messagetext;
   late final DateTime timestamp;
   late final String sentbyid;
   late final String? senttotoken;
@@ -15,7 +15,7 @@ class Message {
   // late final bool isread;
 
   Message.fromMap(this.id, Map<String, dynamic> map) {
-    messagetext = map['messagetext'] != null ? Crypter.decryptAES(map['messagetext'] as String) : throw 'NEED MESSAGE IN $id';
+    messagetext = map['messagetext'] != null ? Crypter.decryptAES(map['messagetext'] as String) : null;
     timestamp =
         map['timestamp'] != null ? DateTime.fromMillisecondsSinceEpoch((map['timestamp'] as Timestamp).millisecondsSinceEpoch) : throw 'NEED DATETIME IN $id';
     sentbyid = map['sentbyid'] != null ? map['sentbyid'] as String : throw 'NEED SENDER IN $id';

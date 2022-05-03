@@ -94,6 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   order: GroupedListOrder.DESC,
                   useStickyGroupSeparators: true,
                   floatingHeader: true,
+                  itemComparator: (m1, m2) => m1.timestamp.compareTo(m2.timestamp),
                   groupHeaderBuilder: (message) => SizedBox(
                     height: 40,
                     child: Center(

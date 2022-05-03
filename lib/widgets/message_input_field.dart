@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class MessageInputField extends StatefulWidget {
   const MessageInputField({
@@ -14,6 +16,7 @@ class MessageInputField extends StatefulWidget {
 class _MessageInputFieldState extends State<MessageInputField> {
   final roomcont = Get.find<ChatRoomController>();
   final TextEditingController messagecont = TextEditingController();
+  var storegaref = FirebaseStorage.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +28,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey),
-              child: Obx(() =>
-                Column(
+              child: Obx(
+                () => Column(
                   children: [
                     if (roomcont.replying$.value)
                       Padding(
@@ -48,7 +51,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      roomcont.replymessage!.messagetext,
+                                      roomcont.replymessage!.messagetext != null ? roomcont.replymessage!.messagetext! : 'photo',
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2,
                                     ),
@@ -57,7 +60,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  roomcont.clear();
+                                  roomcont.clearReply();
                                   setState(() {});
                                 },
                                 icon: const Icon(Icons.close),
@@ -70,18 +73,40 @@ class _MessageInputFieldState extends State<MessageInputField> {
                           ),
                         ),
                       ),
-                    TextField(
-                      controller: messagecont,
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(vertical: 19, horizontal: 10),
-                        hintText: 'type here...',
-                        border: InputBorder.none,
-                      ),
-                      minLines: 1,
-                      maxLines: 4,
-                      onChanged: (t) {
-                        setState(() {});
-                      },
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: messagecont,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(vertical: 19, horizontal: 10),
+                              hintText: 'type here...',
+                              border: InputBorder.none,
+                            ),
+                            minLines: 1,
+                            maxLines: 4,
+                            onChanged: (t) {
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        if (roomcont.hasImage$.value)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            // child: Image.memory(roomcont.imagedata!, width: 30,),
+                            child: TextButton.icon(
+                              onPressed: () {
+                                roomcont.clearImage();
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.close),
+                              label: Image.memory(
+                                roomcont.imagedata!,
+                                width: 30,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),
@@ -91,34 +116,46 @@ class _MessageInputFieldState extends State<MessageInputField> {
           const SizedBox(
             width: 10,
           ),
-          // if (messagecont.text.isEmpty)
-          //   FloatingActionButton(
-          //     heroTag: '1',
-          //     onPressed: () {},
-          //     // mini: true,
-          //     child: const Icon(Icons.camera),
-          //     elevation: 0,
-          //   ),
+          if (messagecont.text.isEmpty && !roomcont.hasImage$.value)
+            FloatingActionButton(
+              heroTag: '1',
+              onPressed: () async {
+                var im = await pickImage(ImageSource.gallery);
+                if (im != null) {
+                  setState(() {
+                    roomcont.imagefile = im['file'];
+                    roomcont.imagedata = im['data'];
+                    roomcont.hasImage$.value = true;
+                  });
+                }
+              },
+              child: const Icon(Icons.camera),
+              elevation: 0,
+            ),
           const SizedBox(
             width: 10,
           ),
           FloatingActionButton(
             heroTag: '2',
             onPressed: () async {
-              await roomcont.addMessage(
-                {
-                  'messagetext': messagecont.text,
-                  'senttotoken': 'NOTOKEN1',
-                  'replymessage': roomcont.replymessage != null ? roomcont.replymessage!.messagetext : null,
-                  // 'replymessage': roomcont.replymessage ?? null
-                  'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
-                },
-              );
-              messagecont.clear();
-              roomcont.clear();
-              setState(() {});
+              if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
+                String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
+                await roomcont.addMessage(
+                  {
+                    'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
+                    'senttotoken': 'NOTOKEN1',
+                    'messageimageurl': pathUrl,
+                    'replymessage': roomcont.replymessage != null ? roomcont.replymessage!.messagetext : null,
+                    // 'replymessage': roomcont.replymessage ?? null
+                    'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
+                    'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
+                  },
+                );
+                messagecont.clear();
+                roomcont.clear();
+                setState(() {});
+              }
             },
-            // mini: true,
             child: const Icon(Icons.send),
             elevation: 0,
           ),
@@ -127,16 +164,21 @@ class _MessageInputFieldState extends State<MessageInputField> {
     );
   }
 
-  // Widget buildReply(BuildContext context) => IntrinsicHeight(
-  //       child: Row(
-  //         children: [
-  //           Container(
-  //             color: Colors.green,
-  //             width: 4,
-  //           ),
-  //           const SizedBox(width: 8),
-  //           Expanded(child: buildReplyMessage()),
-  //         ],
-  //       ),
-  //     );
+  Future<Map<String, dynamic>?> pickImage(ImageSource source) async {
+    var picked = await ImagePicker().pickImage(source: source);
+    if (picked != null) {
+      var data = await picked.readAsBytes();
+      return {
+        'file': picked,
+        'data': data,
+      };
+    }
+    return null;
+  }
+
+  Future<String> uploadImage(XFile file) async {
+    var data = await file.readAsBytes();
+    await storegaref.ref(file.name).putData(data);
+    return storegaref.ref(file.name).getDownloadURL();
+  }
 }

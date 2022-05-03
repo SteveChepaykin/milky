@@ -91,7 +91,7 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
                 ),
                 subtitle: a.lastmessage != null
                     ? Text(
-                        a.lastmessage!.messagetext,
+                        a.lastmessage!.messagetext != null ? a.lastmessage!.messagetext! : 'photo',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       )
