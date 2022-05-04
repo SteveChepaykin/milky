@@ -45,25 +45,6 @@ class FirebaseController extends GetxController {
     });
   }
 
-  // Future<List<UserModel>> getRoomUsers(ChatRoom cr) async {
-  //   var a = await _store.collection('chatrooms').doc(cr.id).get();
-  //   List<UserModel> res = [];
-  //   for(var p in a.data()!['usersids']) {
-  //     UserModel u = await getUserByID(p);
-  //     res.add(u);
-  //   }
-  //   return res;
-  // }
-
-  // Future<Message?> getLastMessageByID(ChatRoom cr) async {
-  //   if (cr.lastmessageid != null) {
-  //     var a = await _store.collection('chatrooms').doc(cr.id).collection('messages').doc(cr.lastmessageid).get();
-  //     return Message.fromMap(a.id, a.data()!);
-  //   } else {
-  //     return null;
-  //   }
-  // }
-
   Future<Map<String, dynamic>> getChatRoomInfo(ChatRoom cr) async {
     var a = _store.collection('chatrooms').doc(cr.id);
     Message? lm;
@@ -355,5 +336,13 @@ class FirebaseController extends GetxController {
     } else {
       setCurrentUser(null);
     }
+  }
+
+  Stream<String> getUserStatus(UserModel user) {
+    return _store
+      .collection('people')
+      .doc(user.id)
+      .snapshots()
+      .map((event) => event['is_online'] ? 'online' : 'last seen recently');
   }
 }

@@ -65,7 +65,29 @@ class _ChatScreenState extends State<ChatScreen> {
                   roomcont.thischatroom!.getname(),
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (roomcont.thischatroom!.purpose != RoomPurpose.chat) Text('${roomcont.thischatroom!.usersids.length} members', style: const TextStyle(fontSize: 14),)
+                roomcont.thischatroom!.purpose != RoomPurpose.chat
+                    ? Text(
+                        '${roomcont.thischatroom!.usersids.length} members',
+                        style: const TextStyle(fontSize: 14),
+                      )
+                    : StreamBuilder<String>(
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Text(
+                              'loading...',
+                              style: TextStyle(
+                                fontSize: 13,
+                              ),
+                            );
+                          }
+                          return Text(snapshot.data!, style: const TextStyle(
+                                fontSize: 13,
+                              ),);
+                        },
+                        stream: Get.find<FirebaseController>().getUserStatus(
+                          roomcont.thischatroom!.roomusers.values.where((element) => element != Get.find<FirebaseController>().currentUser).toList()[0],
+                        ),
+                      ),
               ],
             )
           ],
@@ -133,19 +155,21 @@ class _ChatScreenState extends State<ChatScreen> {
                     width: double.infinity,
                     child: roomcont.thischatroom!.usersids.contains(Get.find<FirebaseController>().currentUser!.id)
                         ? const Center(child: Text('you cant send messages here.'))
-                        : canEnter ? Center(
-                            child: TextButton.icon(
-                              onPressed: () async {
-                                await Get.find<FirebaseController>().joinChannel(roomcont.thischatroom!).whenComplete(() {
-                                  setState(() {
-                                    canEnter = false;
-                                  });
-                                });
-                              },
-                              icon: const Icon(Icons.accessibility_new),
-                              label: const Text('join channel'),
-                            ),
-                          ) : const Center(child: Text('you cant send messages here.')),
+                        : canEnter
+                            ? Center(
+                                child: TextButton.icon(
+                                  onPressed: () async {
+                                    await Get.find<FirebaseController>().joinChannel(roomcont.thischatroom!).whenComplete(() {
+                                      setState(() {
+                                        canEnter = false;
+                                      });
+                                    });
+                                  },
+                                  icon: const Icon(Icons.accessibility_new),
+                                  label: const Text('join channel'),
+                                ),
+                              )
+                            : const Center(child: Text('you cant send messages here.')),
                     color: Colors.grey,
                   ),
                 )
