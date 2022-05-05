@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +6,6 @@ import 'package:milky/controllers/crypt_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/models/user_model.dart';
-import 'package:http/http.dart' as http;
 
 class FirebaseController extends GetxController {
   late final FirebaseFirestore _store;

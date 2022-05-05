@@ -120,20 +120,24 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
               if (thismessage.messageimageurl != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(rad - 2),
-                  child: Image.network(
-                    thismessage.messageimageurl!,
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(rad - 2),
+                    child: Image.network(
+                      thismessage.messageimageurl!,
+                    ),
                   ),
                 ),
-              
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4, top: 3),
-                  child: thismessage.messagetext != null ? Text(
-                    thismessage.messagetext!,
-                    style: TextStyle(fontSize: size),
-                  ) : null,
-                ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 4, top: thismessage.messageimageurl != null ? 0 : 3),
+                child: thismessage.messagetext != null
+                    ? Text(
+                        thismessage.messagetext!,
+                        style: TextStyle(fontSize: size),
+                      )
+                    : null,
+              ),
               Text(
                 DateFormat.Hm().format(thismessage.timestamp),
                 style: TextStyle(fontSize: size! - 3),

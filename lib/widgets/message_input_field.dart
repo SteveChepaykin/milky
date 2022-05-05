@@ -99,7 +99,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                                 roomcont.clearImage();
                                 setState(() {});
                               },
-                              icon: const Icon(Icons.close),
+                              icon: const Icon(Icons.image_not_supported_outlined),
                               label: Image.memory(
                                 roomcont.imagedata!,
                                 width: 30,
@@ -119,15 +119,35 @@ class _MessageInputFieldState extends State<MessageInputField> {
           if (messagecont.text.isEmpty && !roomcont.hasImage$.value)
             FloatingActionButton(
               heroTag: '1',
-              onPressed: () async {
-                var im = await pickImage(ImageSource.gallery);
-                if (im != null) {
-                  setState(() {
-                    roomcont.imagefile = im['file'];
-                    roomcont.imagedata = im['data'];
-                    roomcont.hasImage$.value = true;
-                  });
-                }
+              onPressed: () {
+                // var im = await pickImage(ImageSource.gallery);
+                // if (im != null) {
+                //   setState(() {
+                //     roomcont.imagefile = im['file'];
+                //     roomcont.imagedata = im['data'];
+                //     roomcont.hasImage$.value = true;
+                //   });
+                // }
+                showModalBottomSheet(
+                  context: context,
+                  builder: (_) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        imageTile(
+                          ImageSource.gallery,
+                          'from gallery',
+                          Icons.image_search_rounded,
+                        ),
+                        imageTile(
+                          ImageSource.camera,
+                          'with camera',
+                          Icons.camera_alt_outlined,
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: const Icon(Icons.camera),
               elevation: 0,
@@ -181,4 +201,20 @@ class _MessageInputFieldState extends State<MessageInputField> {
     await storegaref.ref(file.name).putData(data);
     return storegaref.ref(file.name).getDownloadURL();
   }
+
+  ListTile imageTile(ImageSource src, String text, IconData icon) => ListTile(
+        title: Text(text),
+        leading: Icon(icon),
+        onTap: () async {
+          var im = await pickImage(src);
+          if (im != null) {
+            setState(() {
+              roomcont.imagefile = im['file'];
+              roomcont.imagedata = im['data'];
+              roomcont.hasImage$.value = true;
+            });
+          }
+          Navigator.of(context).pop();
+        },
+      );
 }
