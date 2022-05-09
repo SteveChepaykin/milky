@@ -8,9 +8,9 @@ class Message {
   late final String? messagetext;
   late final DateTime timestamp;
   late final String sentbyid;
-  late final String? senttotoken;
-  // late final String? replytextid;
+  late final List<String?>? senttotoken;
   late final String? messageimageurl;
+  late final bool? active;
   Map<String, dynamic>? replymap;
   // late final bool isread;
 
@@ -19,7 +19,11 @@ class Message {
     timestamp =
         map['timestamp'] != null ? DateTime.fromMillisecondsSinceEpoch((map['timestamp'] as Timestamp).millisecondsSinceEpoch) : throw 'NEED DATETIME IN $id';
     sentbyid = map['sentbyid'] != null ? map['sentbyid'] as String : throw 'NEED SENDER IN $id';
-    senttotoken = map['senttotoken'] != null ? map['senttotoken'] as String : null;
+    senttotoken = map['senttotoken'] != null
+        ? map['senttotoken'].runtimeType == String
+            ? [map['senttotoken'] as String]
+            : (map['senttotoken'] as List<dynamic>).map((e) => e.toString()).toList()
+        : null;
     // replytextid = map['replytextid'] != null ? map['replytextid'] as String : null;
     replymap = map['replymessage'] != null
         ? {
@@ -29,6 +33,7 @@ class Message {
         : null;
     // var a = map['replymessage'] != null ? map['replymessage'] : null;
     messageimageurl = map['messageimageurl'] != null ? map['messageimageurl'] as String : null;
+    active = map['active'] != null ? map['active'] as bool : null;
     // isread = map['isread'] != null ? map['isread'] as bool : throw 'NEED STATUS IN $id';
   }
 

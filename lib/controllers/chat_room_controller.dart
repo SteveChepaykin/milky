@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:get/get.dart';
+// import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:milky/controllers/firebase_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
@@ -12,9 +13,11 @@ class ChatRoomController extends GetxController {
   // String? messageimageurl;
   XFile? imagefile;
   Uint8List? imagedata;
+  Message? selectedMessage;
   // bool isreplying = false;
   RxBool replying$ = false.obs;
   RxBool hasImage$ = false.obs;
+  RxBool messageSelected$ = false.obs;
 
   // ChatRoomController(this.thischatroom) {
   //   // replying$ = isreplying.obs;
@@ -45,8 +48,17 @@ class ChatRoomController extends GetxController {
     _thischatroom = a;
   }
 
+  void deselectMessage() {
+    selectedMessage = null;
+    messageSelected$.value = false; 
+  }
+
   Future<void> addMessage(Map<String, dynamic> map) async {
     await Get.find<FirebaseController>().addMessage(thischatroom!, map);
+  }
+
+  Future<void> deactivateMessage(Message m) async {
+    await Get.find<FirebaseController>().deactivateMessage(thischatroom!, m);
   }
 
   // Future<Message> getMessage(String id) async {

@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:milky/models/chatroom_model.dart';
+import 'package:milky/models/color_schemes.dart';
+import 'package:provider/provider.dart';
 
 class MessageInputField extends StatefulWidget {
   const MessageInputField({
@@ -20,6 +23,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Provider.of<ThemeProvider>(context, listen: false).isDarkmode ? MyThemes.darkTheme : MyThemes.lightTheme;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -27,7 +31,10 @@ class _MessageInputFieldState extends State<MessageInputField> {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: theme.colorScheme.secondary,
+              ),
               child: Obx(
                 () => Column(
                   children: [
@@ -163,7 +170,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 await roomcont.addMessage(
                   {
                     'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
-                    'senttotoken': 'NOTOKEN1',
+                    'senttotokens': roomcont.thischatroom!.getOthersTokens(),
                     'messageimageurl': pathUrl,
                     'replymessage': roomcont.replymessage != null ? roomcont.replymessage!.messagetext : null,
                     // 'replymessage': roomcont.replymessage ?? null

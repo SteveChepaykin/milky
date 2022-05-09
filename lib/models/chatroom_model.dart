@@ -1,5 +1,6 @@
 // import 'package:milky/models/message_model.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:milky/controllers/firebase_controller.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/models/user_model.dart';
@@ -12,6 +13,7 @@ class ChatRoom {
   late final String? hostid;
   late final String? name;
   late final String? roomphoto;
+  late final DateTime? timeCreated;
   // late DateTime? lastmessageTS;
   // late String? lastmessagesenderID;
   // late String? lastmessage;
@@ -43,6 +45,7 @@ class ChatRoom {
     roomphoto  = map['roomphoto'] != null ? map['roomphoto'] as String : null;
     name = map['name'] != null ? map['name'] as String : null;
     lastmessageid = map['lastmessageid'] != null ? map['lastmessageid'] as String : null;
+    timeCreated = map['timecreated'] != null ? DateTime.fromMicrosecondsSinceEpoch((map['timecreated'] as Timestamp).millisecondsSinceEpoch) : null; 
     // lastmessage = lm;
   }
 
@@ -80,9 +83,13 @@ class ChatRoom {
     }
   }
 
-  // UserModel getOtherPerson() {
+  // UserModel? getOtherPerson() {
   //   return roomusers.values.where((element) => element.id != Get.find<FirebaseController>().currentUser!.id).toList()[0];
   // }
+
+  List<String> getOthersTokens() {
+    return roomusers.values.where((element) => element.id != Get.find<FirebaseController>().currentUser!.id).map((e) => e.cloudtoken).toList();
+  }
 
   // Future<void> addMessage(Map<String, dynamic> map) async {
   //   await Get.find<FirebaseController>().addMessage(this, map);

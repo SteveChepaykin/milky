@@ -6,9 +6,11 @@ import 'package:milky/controllers/crypt_controller.dart';
 import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/models/user_model.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class FirebaseController extends GetxController {
   late final FirebaseFirestore _store;
+  late final FirebaseMessaging _messaging;
   // final String myid = 'XEODdv0veoWU9oZU4D1C';
   // final String otherid = 'rrGVbfwxD1x21TeE6XaR';
   UserModel? currentUser;
@@ -16,6 +18,7 @@ class FirebaseController extends GetxController {
 
   FirebaseController() {
     _store = FirebaseFirestore.instance;
+    _messaging = FirebaseMessaging.instance;
     currentUser$ = currentUser.obs;
   }
 
@@ -56,18 +59,6 @@ class FirebaseController extends GetxController {
 
     Map<String, UserModel> lru = {};
 
-    // var ab = await a.get();
-    // if (ab.data()!['purpose'] != 2) {
-    //   for (var u in ab.data()!['user_ids']) {
-    //     var z = await getUserByID(u);
-    //     lru[z.id] = z;
-    //   }
-    // } else {
-    //   // Map<String, UserModel> lru = {};
-    //   var z = await getUserByID(ab.data()!['host_id']);
-    //   lru[z.id] = z;
-    // }
-
     if (cr.purpose != RoomPurpose.channel) {
       for (var u in cr.usersids) {
         var z = await getUserByID(u);
@@ -84,10 +75,10 @@ class FirebaseController extends GetxController {
     };
   }
 
-  // Future<Message> getMessageByID(ChatRoom cr, String id) async {
-  //   var a = await _store.collection('chatrooms').doc(cr.id).collection('messages').doc(id).get();
-  //   return Message.fromMap(a.id, a.data()!);
-  // }
+  Future<Message> getMessageByID(ChatRoom cr, String id) async {
+    var a = await _store.collection('chatrooms').doc(cr.id).collection('messages').doc(id).get();
+    return Message.fromMap(a.id, a.data()!);
+  }
 
   Future<UserModel> getUserByID(String id) async {
     var a = await _store.collection('people').doc(id).get();
@@ -97,6 +88,10 @@ class FirebaseController extends GetxController {
   Future<UserModel> getUserByEmail(String email) async {
     var a = await _store.collection('people').where('email', isEqualTo: email).limit(1).get();
     return UserModel.fromMap(a.docs[0].id, a.docs[0].data());
+  }
+
+  Future<String?> initToken() async {
+    return await _messaging.getToken();
   }
 
   Stream<List<Message>> getRoomMessages(ChatRoom cr) {
@@ -133,7 +128,8 @@ class FirebaseController extends GetxController {
       'messagetext': m['messagetext'] != null ? Crypter.encryptAES(m['messagetext']) : null,
       'timestamp': DateTime.now(),
       // 'timestamp': DateTime.parse(file['utc_datetime']),
-      'senttotoken': m['senttotoken'],
+      'senttotoken': m['senttotokens'],
+      'active': true,
       if (m['replymessage'] != null)
         'replymessage': {
           'message': Crypter.encryptAES(m['replymessage']),
@@ -144,6 +140,13 @@ class FirebaseController extends GetxController {
     });
     await a.update({
       'lastmessageid': b.id,
+    });
+  }
+
+  Future<void> deactivateMessage(ChatRoom cr, Message m) async {
+    var a = _store.collection('chatrooms').doc(cr.id).collection('messages').doc(m.id);
+    a.update({
+      'active': false,
     });
   }
 
@@ -195,6 +198,7 @@ class FirebaseController extends GetxController {
         'purpose': 0,
         'lastmessageid': null,
         'user_ids': [currentUser!.id, partner.id],
+        'timecreated': DateTime.now(),
       },
     );
   }
@@ -217,6 +221,7 @@ class FirebaseController extends GetxController {
           currentUser!.id,
         ],
         'roomphoto': null,
+        'timecreated': DateTime.now(),
       });
     }
   }
@@ -231,13 +236,14 @@ class FirebaseController extends GetxController {
       'user_ids': [
         currentUser!.id,
       ],
-      'roomphoto': null
+      'roomphoto': null,
+      'timecreated': DateTime.now(),
     });
   }
 
   Future<void> adduser(Map<String, dynamic> m) async {
     var q = await _store.collection('people').add({
-      'cloud_token': 'SOMETHINGLATER',
+      'cloud_token': await initToken(),
       'is_online': true,
       'email': m['email']!,
       'identifier': m['identifier']!,

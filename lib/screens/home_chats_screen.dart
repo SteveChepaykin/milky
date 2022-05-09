@@ -71,7 +71,19 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
           }
           return ListView.builder(
             itemBuilder: (context, index) {
-              ChatRoom a = snapshot.data![index];
+              // List<ChatRoom> sorted = snapshot.data!.where((element) => element.lastmessage != null).toList()..sort((a, b) {
+              //   return b.lastmessage!.timestamp.compareTo(a.lastmessage!.timestamp);
+              // });
+              List<ChatRoom> sorted = snapshot.data!.where((element) => element.lastmessage == null).toList();
+              sorted.addAll(
+                snapshot.data!.where((element) => element.lastmessage != null).toList()
+                  ..sort(
+                    (a, b) {
+                      return b.lastmessage!.timestamp.compareTo(a.lastmessage!.timestamp);
+                    },
+                  ),
+              );
+              ChatRoom a = sorted[index];
               return ListTile(
                 leading: CircleAvatar(
                   backgroundImage: NetworkImage(
@@ -85,7 +97,9 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
                     Text(a.getname()),
                     if (a.lastmessage != null)
                       Text(
-                        DateFormat.Hm().format(a.lastmessage!.timestamp),
+                        a.lastmessage!.timestamp.day == DateTime.now().day
+                            ? 'today, ${DateFormat.Hm().format(a.lastmessage!.timestamp)}'
+                            : DateFormat('MMM d, hh:mm').format(a.lastmessage!.timestamp),
                       ),
                   ],
                 ),
