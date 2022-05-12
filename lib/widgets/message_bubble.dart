@@ -8,6 +8,7 @@ import 'package:milky/models/color_schemes.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:milky/screens/image_view_screen.dart';
 import 'package:provider/provider.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -28,7 +29,7 @@ class MessageBubble extends StatelessWidget {
       alignment: thismessage.sentByMe() ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
         onLongPress: () {
-          if (thismessage.active != null ? thismessage.active! : thismessage.active == null) {
+          if ((thismessage.active != null ? thismessage.active! : thismessage.active == null) && thismessage.sentByMe()) {
             showDialog(context: context, builder: (_) => dialog(roomcont, context));
           }
         },
@@ -128,11 +129,42 @@ class MessageBubble extends StatelessWidget {
                           // child: Image.network(
                           //   thismessage.messageimageurl!,
                           // ),
-                          child: FadeInImage.assetNetwork(
-                            placeholder: 'assets/loadingimage.png',
-                            placeholderFit: BoxFit.cover,
-                            placeholderScale: 0.3,
-                            image: thismessage.messageimageurl!,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ImageViewScreen(imageurl: thismessage.messageimageurl!),
+                                ),
+                              );
+                            },
+                            child: FutureBuilder<bool>(
+                                future: thismessage.imageDownloaded(),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData) {
+                                    return Container(
+                                        color: Colors.green,
+                                    );
+                                  }
+                                  return snapshot.data!
+                                      ? Image.memory(
+                                          thismessage.imagebytes!,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : FadeInImage.assetNetwork(
+                                          placeholder: 'assets/loadingimage.png',
+                                          placeholderFit: BoxFit.cover,
+                                          placeholderScale: 0.1,
+                                          image: thismessage.messageimageurl!,
+                                        );
+                                }),
+
+                            // child: FadeInImage.assetNetwork(
+                            //   placeholder: 'assets/loadingimage.png',
+                            //   placeholderFit: BoxFit.cover,
+                            //   placeholderScale: 0.1,
+                            //   image: thismessage.messageimageurl!,
+                            // ),
                           ),
                         ),
                       ),

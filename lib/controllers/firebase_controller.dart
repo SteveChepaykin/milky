@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -11,6 +14,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 class FirebaseController extends GetxController {
   late final FirebaseFirestore _store;
   late final FirebaseMessaging _messaging;
+  late final FirebaseStorage _storage;
   // final String myid = 'XEODdv0veoWU9oZU4D1C';
   // final String otherid = 'rrGVbfwxD1x21TeE6XaR';
   UserModel? currentUser;
@@ -19,8 +23,11 @@ class FirebaseController extends GetxController {
   FirebaseController() {
     _store = FirebaseFirestore.instance;
     _messaging = FirebaseMessaging.instance;
+    _storage = FirebaseStorage.instance;
     currentUser$ = currentUser.obs;
   }
+
+  FirebaseStorage get storage => _storage;
 
   Future<void> changeUserStatus(bool status) async {
     var a = _store.collection('people').doc(currentUser!.id);
@@ -141,6 +148,16 @@ class FirebaseController extends GetxController {
     await a.update({
       'lastmessageid': b.id,
     });
+  }
+
+  Future<Uint8List?> getMessageImage(Message m) async {
+    Uint8List? ref;
+    try {
+      ref = await _storage.ref(m.name).getData();
+    } catch (e) {
+      return null;
+    } 
+    return ref;
   }
 
   Future<void> deactivateMessage(ChatRoom cr, Message m) async {

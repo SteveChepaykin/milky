@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:milky/controllers/firebase_controller.dart';
 // import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/color_schemes.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +20,7 @@ class MessageInputField extends StatefulWidget {
 class _MessageInputFieldState extends State<MessageInputField> {
   final roomcont = Get.find<ChatRoomController>();
   final TextEditingController messagecont = TextEditingController();
-  var storegaref = FirebaseStorage.instance;
+  var storegaref = Get.find<FirebaseController>().storage;
 
   @override
   Widget build(BuildContext context) {
