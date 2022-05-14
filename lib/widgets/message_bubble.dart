@@ -138,26 +138,26 @@ class MessageBubble extends StatelessWidget {
                                 ),
                               );
                             },
-                            child: FutureBuilder<bool>(
-                                future: thismessage.imageDownloaded(),
-                                builder: (context, snapshot) {
-                                  if (!snapshot.hasData) {
-                                    return Container(
-                                        color: Colors.green,
-                                    );
-                                  }
-                                  return snapshot.data!
-                                      ? Image.memory(
-                                          thismessage.imagebytes!,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : FadeInImage.assetNetwork(
-                                          placeholder: 'assets/loadingimage.png',
-                                          placeholderFit: BoxFit.cover,
-                                          placeholderScale: 0.1,
-                                          image: thismessage.messageimageurl!,
-                                        );
-                                }),
+                            // child: FutureBuilder<bool>(
+                            //     future: thismessage.imageDownloaded(),
+                            //     builder: (context, snapshot) {
+                            //       if (!snapshot.hasData) {
+                            //         return Container(
+                            //             color: Colors.green,
+                            //         );
+                            //       }
+                            //       return snapshot.data!
+                            //           ? Image.memory(
+                            //               thismessage.imagebytes!,
+                            //               fit: BoxFit.cover,
+                            //             )
+                            //           : FadeInImage.assetNetwork(
+                            //               placeholder: 'assets/loadingimage.png',
+                            //               placeholderFit: BoxFit.cover,
+                            //               placeholderScale: 0.1,
+                            //               image: thismessage.messageimageurl!,
+                            //             );
+                            //     }),
 
                             // child: FadeInImage.assetNetwork(
                             //   placeholder: 'assets/loadingimage.png',
@@ -165,6 +165,15 @@ class MessageBubble extends StatelessWidget {
                             //   placeholderScale: 0.1,
                             //   image: thismessage.messageimageurl!,
                             // ),
+
+                            child: thismessage.imagebytes == null
+                                ? FadeInImage.assetNetwork(
+                                    placeholder: 'assets/loadingimage.png',
+                                    placeholderFit: BoxFit.cover,
+                                    placeholderScale: 0.1,
+                                    image: thismessage.messageimageurl!,
+                                  )
+                                : Image.memory(thismessage.imagebytes!),
                           ),
                         ),
                       ),

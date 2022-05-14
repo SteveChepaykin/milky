@@ -41,7 +41,7 @@ class Message {
     messageimageurl = map['messageimageurl'] != null ? map['messageimageurl'] as String : null;
     active = map['active'] != null ? map['active'] as bool : null;
 
-    loadImage();
+    // loadImage();
     // isread = map['isread'] != null ? map['isread'] as bool : throw 'NEED STATUS IN $id';
   }
 
@@ -63,7 +63,7 @@ class Message {
     }
   }
 
-  void loadImage() async {
+  Future<void> loadImage() async {
     final bytes = await Get.find<FirebaseController>().getMessageImage(this);
     if (bytes != null) {
       final appStorage = await getApplicationDocumentsDirectory();
@@ -71,6 +71,9 @@ class Message {
       if (!image.existsSync()) {
         image.writeAsBytes(bytes);
       }
+      imagebytes = await image.readAsBytes();
+    } else {
+      imagebytes = null;
     }
   }
 

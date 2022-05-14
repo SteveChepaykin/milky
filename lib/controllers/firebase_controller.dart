@@ -117,7 +117,10 @@ class FirebaseController extends GetxController {
         // var cfk = Message.fromMap(m.id, m.data());
         // cfk.replymap = m.data()['replymessage'] != null ? m.data()['replymessage'] as Map<String, String> : null;
         // lm.add(cfk);
-        lm.add(Message.fromMap(m.id, m.data()));
+        var mes = Message.fromMap(m.id, m.data());
+        mes.loadImage();
+        // lm.add(Message.fromMap(m.id, m.data()));
+        lm.add(mes);
       }
       lm.sort((m1, m2) {
         return m1.timestamp.compareTo(m2.timestamp);
