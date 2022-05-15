@@ -14,7 +14,8 @@ class ImageViewScreen extends StatelessWidget {
       ),
       body: Center(
         child: InteractiveViewer(
-          child: Image.network(imageurl),
+          clipBehavior: Clip.none,
+          child: Image.network(imageurl, fit: BoxFit.fitWidth,),
           minScale: 1,
           maxScale: 4,
         ),
