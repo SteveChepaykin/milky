@@ -8,7 +8,7 @@ import 'package:milky/models/color_schemes.dart';
 import 'package:milky/models/user_model.dart';
 import 'package:milky/screens/home_chats_screen.dart';
 import 'package:milky/screens/log_in_screen.dart';
-import 'package:provider/provider.dart';
+// import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +21,9 @@ void main() async {
   Get.put<FirebaseController>(fcont);
   Get.put<ChatRoomController>(rcont);
   Get.put<SettingsController>(setcont);
+  var thcont = ThemeController();
+  Get.put<ThemeController>(thcont);
+  thcont.init();
   runApp(const MyApp());
 }
 
@@ -29,27 +32,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
-      builder: (context, _) {
-        final themeprov = Provider.of<ThemeProvider>(context,);
-        return MaterialApp(
-          title: 'Flutter Demo',
-          debugShowCheckedModeBanner: false,
-          themeMode: themeprov.thememode,
-          theme: MyThemes.lightTheme,
-          darkTheme: MyThemes.darkTheme,
-          home: StreamBuilder<UserModel?>(
-            stream: Get.find<FirebaseController>().currentUser$.stream,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const LogInScreen();
-              }
-              return const HomeChatsScreen();
-            },
-          ),
-        );
-      },
-    );
+    return Obx(() {
+      var tp = Get.find<ThemeController>();
+      return MaterialApp(
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        themeMode: tp.thememode$.value,
+        theme: tp.themes$[0],
+        darkTheme: tp.themes$[1],
+        home: StreamBuilder<UserModel?>(
+          stream: Get.find<FirebaseController>().currentUser$.stream,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const LogInScreen();
+            }
+            return const HomeChatsScreen();
+          },
+        ),
+      );
+    });
   }
 }

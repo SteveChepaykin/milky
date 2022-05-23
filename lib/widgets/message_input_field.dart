@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/chat_room_controller.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:milky/controllers/firebase_controller.dart';
-// import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/color_schemes.dart';
-import 'package:provider/provider.dart';
 
 class MessageInputField extends StatefulWidget {
   const MessageInputField({
@@ -24,7 +21,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Provider.of<ThemeProvider>(context, listen: false).isDarkmode ? MyThemes.darkTheme : MyThemes.lightTheme;
+    final ThemeData theme = Get.find<ThemeController>().thememode$.value == ThemeMode.dark ? MyThemes.darkTheme : MyThemes.lightTheme;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -34,7 +31,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: theme.colorScheme.secondary,
+                color: theme.colorScheme.primaryContainer,
               ),
               child: Obx(
                 () => Column(
@@ -83,13 +80,23 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       ),
                     Row(
                       children: [
+                        // IconButton(
+                        //     onPressed: () {
+
+                        //     },
+                        //     icon: const Icon(Icons.emoji_emotions_outlined),
+                        //   ),
                         Expanded(
                           child: TextField(
                             controller: messagecont,
                             decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(vertical: 19, horizontal: 10),
+                              contentPadding: EdgeInsets.symmetric(vertical: 17, horizontal: 10),
                               hintText: 'type here...',
                               border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              fillColor: Color.fromARGB(0, 1, 1, 1),
                             ),
                             minLines: 1,
                             maxLines: 4,
@@ -114,6 +121,60 @@ class _MessageInputFieldState extends State<MessageInputField> {
                               ),
                             ),
                           ),
+                        if (messagecont.text.isEmpty && !roomcont.hasImage$.value)
+                          IconButton(
+                            onPressed: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (_) {
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      imageTile(
+                                        ImageSource.gallery,
+                                        'from gallery',
+                                        Icons.image_search_rounded,
+                                      ),
+                                      imageTile(
+                                        ImageSource.camera,
+                                        'with camera',
+                                        Icons.camera_alt_outlined,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.camera),
+                          ),
+                        IconButton(
+                          onPressed: () async {
+                            if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
+                              String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
+                              await roomcont.addMessage(
+                                {
+                                  'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
+                                  'senttotokens': roomcont.thischatroom!.getOthersTokens(),
+                                  'messageimageurl': pathUrl,
+                                  'replymessage': roomcont.replymessage != null
+                                      ? roomcont.replymessage!.active != null
+                                          ? !roomcont.replymessage!.active!
+                                              ? 'this message was deleted.'
+                                              : roomcont.replymessage!.messagetext
+                                          : roomcont.replymessage!.messagetext
+                                      : null,
+                                  // 'replymessage': roomcont.replymessage ?? null
+                                  'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
+                                  'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
+                                },
+                              );
+                              messagecont.clear();
+                              roomcont.clear();
+                              setState(() {});
+                            }
+                          },
+                          icon: const Icon(Icons.send),
+                        ),
                       ],
                     ),
                   ],
@@ -121,72 +182,78 @@ class _MessageInputFieldState extends State<MessageInputField> {
               ),
             ),
           ),
-          const SizedBox(
-            width: 10,
-          ),
-          if (messagecont.text.isEmpty && !roomcont.hasImage$.value)
-            FloatingActionButton(
-              heroTag: '1',
-              onPressed: () {
-                // var im = await pickImage(ImageSource.gallery);
-                // if (im != null) {
-                //   setState(() {
-                //     roomcont.imagefile = im['file'];
-                //     roomcont.imagedata = im['data'];
-                //     roomcont.hasImage$.value = true;
-                //   });
-                // }
-                showModalBottomSheet(
-                  context: context,
-                  builder: (_) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        imageTile(
-                          ImageSource.gallery,
-                          'from gallery',
-                          Icons.image_search_rounded,
-                        ),
-                        imageTile(
-                          ImageSource.camera,
-                          'with camera',
-                          Icons.camera_alt_outlined,
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: const Icon(Icons.camera),
-              elevation: 0,
-            ),
-          const SizedBox(
-            width: 10,
-          ),
-          FloatingActionButton(
-            heroTag: '2',
-            onPressed: () async {
-              if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
-                String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
-                await roomcont.addMessage(
-                  {
-                    'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
-                    'senttotokens': roomcont.thischatroom!.getOthersTokens(),
-                    'messageimageurl': pathUrl,
-                    'replymessage': roomcont.replymessage != null ? roomcont.replymessage!.messagetext : null,
-                    // 'replymessage': roomcont.replymessage ?? null
-                    'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
-                    'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
-                  },
-                );
-                messagecont.clear();
-                roomcont.clear();
-                setState(() {});
-              }
-            },
-            child: const Icon(Icons.send),
-            elevation: 0,
-          ),
+          // const SizedBox(
+          //   width: 10,
+          // ),
+          // if (messagecont.text.isEmpty && !roomcont.hasImage$.value)
+          //   FloatingActionButton(
+          //     heroTag: '1',
+          //     onPressed: () {
+          //       // var im = await pickImage(ImageSource.gallery);
+          //       // if (im != null) {
+          //       //   setState(() {
+          //       //     roomcont.imagefile = im['file'];
+          //       //     roomcont.imagedata = im['data'];
+          //       //     roomcont.hasImage$.value = true;
+          //       //   });
+          //       // }
+          //       showModalBottomSheet(
+          //         context: context,
+          //         builder: (_) {
+          //           return Column(
+          //             mainAxisSize: MainAxisSize.min,
+          //             children: [
+          //               imageTile(
+          //                 ImageSource.gallery,
+          //                 'from gallery',
+          //                 Icons.image_search_rounded,
+          //               ),
+          //               imageTile(
+          //                 ImageSource.camera,
+          //                 'with camera',
+          //                 Icons.camera_alt_outlined,
+          //               ),
+          //             ],
+          //           );
+          //         },
+          //       );
+          //     },
+          //     child: const Icon(Icons.camera),
+          //     elevation: 0,
+          //   ),
+          // const SizedBox(
+          //   width: 10,
+          // ),
+          // FloatingActionButton(
+          //   heroTag: '2',
+          //   onPressed: () async {
+          //     if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
+          //       String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
+          //       await roomcont.addMessage(
+          //         {
+          //           'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
+          //           'senttotokens': roomcont.thischatroom!.getOthersTokens(),
+          //           'messageimageurl': pathUrl,
+          //           'replymessage': roomcont.replymessage != null
+          //               ? roomcont.replymessage!.active != null
+          //                   ? !roomcont.replymessage!.active!
+          //                       ? 'this message was deleted.'
+          //                       : roomcont.replymessage!.messagetext
+          //                   : roomcont.replymessage!.messagetext
+          //               : null,
+          //           // 'replymessage': roomcont.replymessage ?? null
+          //           'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
+          //           'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
+          //         },
+          //       );
+          //       messagecont.clear();
+          //       roomcont.clear();
+          //       setState(() {});
+          //     }
+          //   },
+          //   child: const Icon(Icons.send),
+          //   elevation: 0,
+          // ),
         ],
       ),
     );

@@ -6,9 +6,11 @@ class SettingsController extends GetxController {
   late double textsize;
   late double bubbleradius;
   late bool isDarkmode;
+  late int scheme;
   static const sizekey = 'size';
   static const radkey = 'radius';
   static const darkkey = 'darkmode';
+  static const schemekey = 'scheme';
 
   late final SharedPreferences prefs;
 
@@ -20,6 +22,7 @@ class SettingsController extends GetxController {
     textsize = getSize()!;
     bubbleradius = getRadius()!;
     isDarkmode = getDarkmode()!;
+    scheme = getSchemeIndex()!;
   }
 
   Future<void> setRadius(double rad) {
@@ -34,6 +37,10 @@ class SettingsController extends GetxController {
     return prefs.setBool(darkkey, isdark);
   }
 
+  Future<void> setScheme(int index) {
+    return prefs.setInt(schemekey, index);
+  }
+
   double? getSize() {
     return prefs.containsKey(sizekey) ? prefs.getDouble(sizekey) : 16;
   }
@@ -44,6 +51,10 @@ class SettingsController extends GetxController {
 
   bool? getDarkmode() {
     return prefs.containsKey(darkkey) ? prefs.getBool(darkkey) : false;
+  }
+
+  int? getSchemeIndex() {
+    return prefs.containsKey(schemekey) ? prefs.getInt(schemekey) : 0;
   }
 
   // Map<String, Color> colorsMap() {

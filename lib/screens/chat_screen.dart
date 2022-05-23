@@ -132,6 +132,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   itemBuilder: (context, message) {
                     return SwipeTo(
+                      animationDuration: const Duration(milliseconds: 120),
                       key: ValueKey(message.id),
                       child: MessageBubble(
                         key: ValueKey(message.id),

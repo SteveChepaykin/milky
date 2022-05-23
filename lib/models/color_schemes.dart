@@ -2,60 +2,90 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:milky/controllers/settings_controller.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
+// import 'package:provider/provider.dart';
 
-// class ColorChemes {
-//   static const Map<String, Map<String, Color>> schemesMap = {
-//   'light': {
-//     'main': Color.fromARGB(255, 66, 165, 245),
-//     'secondary': Color.fromARGB(255, 100, 181, 246),
-//     'third': Color.fromARGB(255, 25, 118, 210),
-//     'yourtext': Color.fromARGB(255, 21, 101, 192),
-//     'otherstext': Color.fromARGB(255, 227, 242, 253),
-//     'youranswer': Color.fromARGB(255, 13, 161, 119),
-//     'otheranswer': Color.fromARGB(255, 161, 129, 13),
-//   },
-//   'dark': {
-//     'main': Color.fromARGB(255, 0, 40, 85),
-//     'secondary': Color.fromARGB(255, 3, 83, 164),
-//     'third': Color.fromARGB(255, 4, 102, 200),
-//     'yourtext': Color.fromARGB(255, 0, 24, 69),
-//     'otherstext': Color.fromARGB(255, 92, 103, 125),
-//     'youranswer': Color.fromARGB(255, 13, 161, 119),
-//     'otheranswer': Color.fromARGB(255, 161, 129, 13),
-//   } };
-// }
+class ThemeController extends GetxController {
+  // static const schemes = MyThemes.schemes;
+  static final schemes = [
+    FlexScheme.blue,
+    FlexScheme.aquaBlue,
+    FlexScheme.mango,
+    FlexScheme.money,
+  ];
 
-class ThemeProvider extends ChangeNotifier {
-  ThemeMode thememode = Get.find<SettingsController>().getDarkmode()! ? ThemeMode.dark : ThemeMode.light;
+  var themes$ = <ThemeData>[].obs;
 
-  bool get isDarkmode => Get.find<SettingsController>().getDarkmode()!;
+  Rx<ThemeMode> thememode$ = (Get.find<SettingsController>().getDarkmode()! ? ThemeMode.dark : ThemeMode.light).obs;
+  // FlexScheme scheme = schemes[Get.find<SettingsController>().getSchemeIndex()!];
+  RxInt ind$ = (Get.find<SettingsController>().getSchemeIndex()!).obs;
+
+  // Rx<bool> get isDarkmode => (thememode$.value == ThemeMode.dark).obs;
+
+  void init() {
+    themes$.value = [
+      MyThemes.lightTheme,
+      MyThemes.darkTheme,
+    ];
+  }
 
   void toggleTheme(bool value) {
-    thememode = value ? ThemeMode.dark : ThemeMode.light;
+    thememode$.value = value ? ThemeMode.dark : ThemeMode.light;
     Get.find<SettingsController>().setDarkmode(value);
-    notifyListeners();
+  }
+
+  void chooseScheme(int index) {
+    // scheme = schemes[index];
+    ind$.value = index;
+    Get.find<SettingsController>().setScheme(index);
+    themes$.value = [
+      MyThemes.lightTheme,
+      MyThemes.darkTheme,
+    ];
+    // scheme = schemes[Get.find<SettingsController>().getSchemeIndex()!];
   }
 }
 
 class MyThemes {
-  static final lightTheme = ThemeData(
-    scaffoldBackgroundColor: const Color.fromARGB(255, 132, 200, 255),
-    // primaryColor: const Color.fromARGB(255, 220, 193, 111),
-    colorScheme: const ColorScheme.light(
-      primary: Color.fromARGB(255, 23, 114, 188),
-      secondary: Color.fromARGB(255, 36, 127, 202),
-      tertiary: Color.fromARGB(255, 44, 97, 211),
+  static const schemes = [
+    FlexScheme.blue,
+    FlexScheme.aquaBlue,
+    FlexScheme.mango,
+    FlexScheme.money,
+  ];
+
+  static ThemeData get lightTheme => FlexThemeData.light(
+    scheme: schemes[Get.find<SettingsController>().getSchemeIndex()!],
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+    blendLevel: 20,
+    appBarOpacity: 0.90,
+    subThemesData: const FlexSubThemesData(
+      blendOnLevel: 30,
+      blendOnColors: false,
+      toggleButtonsRadius: 13.0,
+      unselectedToggleIsColored: true,
+      inputDecoratorRadius: 16.0,
+      fabRadius: 13.0,
     ),
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: true,
+    // fontFamily: GoogleFonts.notoSans().fontFamily,
   );
 
-  static final darkTheme = ThemeData(
-    scaffoldBackgroundColor: const Color.fromARGB(255, 1, 11, 30),
-    // primaryColor: Color.fromARGB(255, 3, 40, 92),
-    appBarTheme: const AppBarTheme(backgroundColor: Color.fromARGB(255, 5, 43, 96),),
-    colorScheme: const ColorScheme.dark(
-      primary: Color.fromARGB(255, 90, 151, 197),
-      secondary: Color.fromARGB(255, 5, 43, 96),
-      tertiary: Color.fromARGB(255, 10, 10, 93),
+  static ThemeData get darkTheme => FlexThemeData.dark(
+    scheme: schemes[Get.find<SettingsController>().getSchemeIndex()!],
+    surfaceMode: FlexSurfaceMode.level,
+    blendLevel: 20,
+    appBarOpacity: 0.90,
+    subThemesData: const FlexSubThemesData(
+      blendOnLevel: 30,
+      toggleButtonsRadius: 13.0,
+      unselectedToggleIsColored: true,
+      inputDecoratorRadius: 16.0,
+      fabRadius: 13.0,
     ),
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: true,
+    // fontFamily: GoogleFonts.notoSans().fontFamily,
   );
 }

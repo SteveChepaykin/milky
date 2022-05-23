@@ -9,7 +9,6 @@ import 'package:milky/models/message_model.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:milky/screens/image_view_screen.dart';
-import 'package:provider/provider.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message thismessage;
@@ -20,7 +19,8 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Provider.of<ThemeProvider>(context, listen: false).isDarkmode ? MyThemes.darkTheme : MyThemes.lightTheme;
+    var tc = Get.find<ThemeController>();
+    final ThemeData theme = tc.thememode$.value == ThemeMode.dark ? MyThemes.darkTheme : MyThemes.lightTheme;
     final roomcont = Get.find<ChatRoomController>();
     final rad = Get.find<SettingsController>().getRadius();
     final size = Get.find<SettingsController>().getSize();
@@ -29,9 +29,7 @@ class MessageBubble extends StatelessWidget {
       alignment: thismessage.sentByMe() ? Alignment.centerRight : Alignment.centerLeft,
       child: GestureDetector(
         onLongPress: () {
-          if ((thismessage.active != null ? thismessage.active! : thismessage.active == null) && thismessage.sentByMe()) {
-            showDialog(context: context, builder: (_) => dialog(roomcont, context));
-          }
+          showDialog(context: context, builder: (_) => dialog(roomcont, context));
         },
         child: Container(
           // alignment: thismessage.sentbyid == Get.find<FirebaseController>().myid ? Alignment.centerRight : Alignment.centerLeft,
@@ -39,12 +37,13 @@ class MessageBubble extends StatelessWidget {
             maxWidth: thismessage.messageimageurl != null ? MediaQuery.of(context).size.width * 0.6 : MediaQuery.of(context).size.width * 0.85,
           ),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  topLeft: thismessage.sentByMe() ? Radius.circular(rad!) : const Radius.circular(0),
-                  topRight: thismessage.sentByMe() ? const Radius.circular(0) : Radius.circular(rad!),
-                  bottomLeft: Radius.circular(rad!),
-                  bottomRight: Radius.circular(rad)),
-              color: thismessage.sentByMe() ? theme.colorScheme.secondary : theme.colorScheme.tertiary),
+            borderRadius: BorderRadius.only(
+                topLeft: thismessage.sentByMe() ? Radius.circular(rad!) : const Radius.circular(0),
+                topRight: thismessage.sentByMe() ? const Radius.circular(0) : Radius.circular(rad!),
+                bottomLeft: Radius.circular(rad!),
+                bottomRight: Radius.circular(rad)),
+            color: thismessage.sentByMe() ? theme.colorScheme.primaryContainer : theme.colorScheme.tertiaryContainer,
+          ),
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
           padding: const EdgeInsets.all(5),
           child: (thismessage.active != null ? thismessage.active! : thismessage.active == null)
@@ -138,34 +137,6 @@ class MessageBubble extends StatelessWidget {
                                 ),
                               );
                             },
-                            // child: FutureBuilder<bool>(
-                            //     future: thismessage.imageDownloaded(),
-                            //     builder: (context, snapshot) {
-                            //       if (!snapshot.hasData) {
-                            //         return Container(
-                            //             color: Colors.green,
-                            //         );
-                            //       }
-                            //       return snapshot.data!
-                            //           ? Image.memory(
-                            //               thismessage.imagebytes!,
-                            //               fit: BoxFit.cover,
-                            //             )
-                            //           : FadeInImage.assetNetwork(
-                            //               placeholder: 'assets/loadingimage.png',
-                            //               placeholderFit: BoxFit.cover,
-                            //               placeholderScale: 0.1,
-                            //               image: thismessage.messageimageurl!,
-                            //             );
-                            //     }),
-
-                            // child: FadeInImage.assetNetwork(
-                            //   placeholder: 'assets/loadingimage.png',
-                            //   placeholderFit: BoxFit.cover,
-                            //   placeholderScale: 0.1,
-                            //   image: thismessage.messageimageurl!,
-                            // ),
-
                             child: thismessage.imagebytes == null
                                 ? FadeInImage.assetNetwork(
                                     placeholder: 'assets/loadingimage.png',
@@ -210,13 +181,15 @@ class MessageBubble extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              title: const Text('delete message'),
-              trailing: const Icon(Icons.delete_outline_rounded),
-              onTap: () {
-                c.deactivateMessage(thismessage);
-              },
-            ),
+            if ((thismessage.active != null ? thismessage.active! : thismessage.active == null) && thismessage.sentByMe())
+              ListTile(
+                title: const Text('delete message'),
+                trailing: const Icon(Icons.delete_outline_rounded),
+                onTap: () {
+                  c.deactivateMessage(thismessage);
+                  Navigator.of(context).pop();
+                },
+              ),
             ListTile(
               title: const Text('copy message'),
               trailing: const Icon(Icons.copy_rounded),
@@ -224,6 +197,16 @@ class MessageBubble extends StatelessWidget {
                 Clipboard.setData(
                   ClipboardData(text: thismessage.messagetext),
                 );
+                Navigator.of(context).pop();
+              },
+            ),
+            ListTile(
+              title: const Text('answer to message'),
+              trailing: const Icon(Icons.reply),
+              onTap: () {
+                c.replymessage = thismessage;
+                c.replying$.value = true;
+                Navigator.of(context).pop();
               },
             ),
           ],

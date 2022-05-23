@@ -30,16 +30,16 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: const Border(
-                    bottom: BorderSide(width: 2),
-                    left: BorderSide(width: 2),
-                    right: BorderSide(width: 2),
-                    top: BorderSide(width: 2),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+              SizedBox(
+                // decoration: BoxDecoration(
+                //   border: const Border(
+                //     bottom: BorderSide(width: 2),
+                //     left: BorderSide(width: 2),
+                //     right: BorderSide(width: 2),
+                //     top: BorderSide(width: 2),
+                //   ),
+                //   borderRadius: BorderRadius.circular(12),
+                // ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextField(

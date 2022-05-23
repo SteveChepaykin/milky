@@ -52,16 +52,16 @@ class Message {
     return sentbyid == Get.find<FirebaseController>().currentUser!.id;
   }
 
-  Future<bool> imageDownloaded() async {
-    final appStorage = await getApplicationDocumentsDirectory();
-    final image = File('${appStorage.path}/$name');
-    if (image.existsSync()) {
-      imagebytes = await image.readAsBytes();
-      return true;
-    } else {
-      return false;
-    }
-  }
+  // Future<bool> imageDownloaded() async {
+  //   final appStorage = await getApplicationDocumentsDirectory();
+  //   final image = File('${appStorage.path}/$name');
+  //   if (image.existsSync()) {
+  //     imagebytes = await image.readAsBytes();
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   Future<void> loadImage() async {
     final bytes = await Get.find<FirebaseController>().getMessageImage(this);
