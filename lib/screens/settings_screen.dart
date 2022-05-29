@@ -14,12 +14,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController cont = TextEditingController();
   final TextEditingController spdcont = TextEditingController();
   // late int schemeindex;
+  late int chosen;
 
   @override
   void initState() {
     var a = Get.find<SettingsController>();
     cont.text = a.getSize().toString();
     spdcont.text = a.getRadius()!.toString();
+    chosen = a.getSchemeIndex()!;
     // isDark = a.getDarkmode()!;
     // schemeindex = a.getSchemeIndex()!;
     // rad = a.getRadius()!;
@@ -84,30 +86,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               const Text('set color cheme'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
+              const SizedBox(height: 10,),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.center,
+              //   children: [
+              //     TextButton(
+              //         onPressed: () {
+              //           Get.find<ThemeController>().chooseScheme(0);
+              //         },
+              //         child: const Text('1')),
+              //     TextButton(
+              //         onPressed: () {
+              //           Get.find<ThemeController>().chooseScheme(1);
+              //         },
+              //         child: const Text('2')),
+              //     TextButton(
+              //         onPressed: () {
+              //           Get.find<ThemeController>().chooseScheme(2);
+              //         },
+              //         child: const Text('3')),
+              //     TextButton(
+              //         onPressed: () {
+              //           Get.find<ThemeController>().chooseScheme(3);
+              //         },
+              //         child: const Text('4')),
+              //   ],
+              // ),
+              SizedBox(
+                height: 500,
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    childAspectRatio: 3 / 2,
+                    crossAxisSpacing: 20,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: ThemeController.schemes.length,
+                  itemBuilder: (context, i) => Container(
+                    decoration: chosen == i ? BoxDecoration(
+                      border: Border.all(width: 1.5, color: Theme.of(context).colorScheme.secondary),
+                      borderRadius: const BorderRadius.all(Radius.circular(20))
+                    ) : null,
+                    child: TextButton(
                       onPressed: () {
-                        Get.find<ThemeController>().chooseScheme(0);
+                        Get.find<ThemeController>().chooseScheme(i);
+                        chosen = i;
+                        setState(() {});
                       },
-                      child: const Text('1')),
-                  TextButton(
-                      onPressed: () {
-                        Get.find<ThemeController>().chooseScheme(1);
-                      },
-                      child: const Text('2')),
-                  TextButton(
-                      onPressed: () {
-                        Get.find<ThemeController>().chooseScheme(2);
-                      },
-                      child: const Text('3')),
-                  TextButton(
-                      onPressed: () {
-                        Get.find<ThemeController>().chooseScheme(3);
-                      },
-                      child: const Text('4')),
-                ],
+                      child: Text(ThemeController.schemes[i].name),
+                    ),
+                  ),
+                ),
               ),
               // TextButton.icon(
               //   onPressed: () {
@@ -134,22 +163,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-  // Widget butn(int v) {
-  //   return ElevatedButton(
-  //     // style: ButtonStyle(backgroundColor: const Color.fromARGB(255, 28, 57, 78),),
-  //     style: ButtonStyle(backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 28, 57, 78))),
-  //     onPressed: () {
-  //       setState(() {
-  //         spd = v;
-  //       });
-  //     },
-  //     child: Text(
-  //       v.toString(),
-  //       style: TextStyle(
-  //         color: spd == v ? Colors.amber : Colors.white,
-  //       ),
-  //     ),
-  //   );
-  // }
 }

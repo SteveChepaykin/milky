@@ -160,15 +160,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 TextButton.icon(
-                  onPressed: () {
-                    // Get.find<FirebaseController>().registerUser({
-                    //   'nickname': nicknamecont.text,
-                    //   'email': emailcont.text,
-                    //   'password': paaswordcont.text,
-                    //   'identifier': identifiercont.text,
-                    // });
-                    register();
-                  },
+                  // onPressed: () {
+                  //   // Get.find<FirebaseController>().registerUser({
+                  //   //   'nickname': nicknamecont.text,
+                  //   //   'email': emailcont.text,
+                  //   //   'password': paaswordcont.text,
+                  //   //   'identifier': identifiercont.text,
+                  //   // });
+                  //   register();
+                  // },
+                  onPressed: register,
                   icon: const Icon(Icons.account_box),
                   label: const Text('CREATE'),
                 ),

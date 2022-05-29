@@ -12,6 +12,11 @@ class ThemeController extends GetxController {
     FlexScheme.aquaBlue,
     FlexScheme.mango,
     FlexScheme.money,
+    FlexScheme.aquaBlue,
+    FlexScheme.deepPurple,
+    FlexScheme.sakura,
+    FlexScheme.shark,
+    FlexScheme.blueWhale,
   ];
 
   var themes$ = <ThemeData>[].obs;
@@ -47,15 +52,15 @@ class ThemeController extends GetxController {
 }
 
 class MyThemes {
-  static const schemes = [
-    FlexScheme.blue,
-    FlexScheme.aquaBlue,
-    FlexScheme.mango,
-    FlexScheme.money,
-  ];
+  // static const schemes = [
+  //   FlexScheme.blue,
+  //   FlexScheme.aquaBlue,
+  //   FlexScheme.mango,
+  //   FlexScheme.money,
+  // ];
 
   static ThemeData get lightTheme => FlexThemeData.light(
-    scheme: schemes[Get.find<SettingsController>().getSchemeIndex()!],
+    scheme: ThemeController.schemes[Get.find<SettingsController>().getSchemeIndex()!],
     surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
     blendLevel: 20,
     appBarOpacity: 0.90,
@@ -73,7 +78,7 @@ class MyThemes {
   );
 
   static ThemeData get darkTheme => FlexThemeData.dark(
-    scheme: schemes[Get.find<SettingsController>().getSchemeIndex()!],
+    scheme: ThemeController.schemes[Get.find<SettingsController>().getSchemeIndex()!],
     surfaceMode: FlexSurfaceMode.level,
     blendLevel: 20,
     appBarOpacity: 0.90,
