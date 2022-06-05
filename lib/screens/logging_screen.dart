@@ -20,15 +20,18 @@ class _RegisterScreenState extends State<LoggingScreen> {
   final _form = GlobalKey<FormState>();
   String nickname = '', identifier = '', email = '', password = '';
   File? imagefile;
+  String? imageurl = null;
   bool isLogin = true;
 
   void register() async {
     bool isvalid = _form.currentState!.validate();
     if (isvalid) {
       _form.currentState!.save();
-      final ref = FirebaseStorage.instance.ref().child('user_images').child(email + '.jpg');
+      if (imagefile != null) {
+        final ref = FirebaseStorage.instance.ref().child('user_images').child(email + '.jpg');
         await ref.putFile(imagefile!).whenComplete(() => null);
-        final imageurl = await ref.getDownloadURL();
+        imageurl = await ref.getDownloadURL();
+      }
       Get.find<FirebaseController>().registerUser({
         'nickname': nickname,
         'email': email,
@@ -80,7 +83,11 @@ class _RegisterScreenState extends State<LoggingScreen> {
             child: Column(
               children: [
                 if (!isLogin)
-                  PfpPick(pickImage: (File? f) {imagefile = f;},),
+                  PfpPick(
+                    pickImage: (File? f) {
+                      imagefile = f;
+                    },
+                  ),
                 if (!isLogin)
                   TextFormField(
                     decoration: const InputDecoration(
