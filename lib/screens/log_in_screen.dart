@@ -87,7 +87,7 @@ class _LogInScreenState extends State<LogInScreen> {
           // ),
           child: Form(
             key: _form,
-            child: ListView(
+            child: Column(
               children: [
                 TextFormField(
                   decoration: const InputDecoration(

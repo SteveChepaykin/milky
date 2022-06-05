@@ -31,7 +31,8 @@ class _AccountScreenState extends State<AccountScreen> {
         child: Column(
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage(user.profilepicUrl!),
+              radius: 50,
+              backgroundImage:NetworkImage(user.profilepicUrl != null ? user.profilepicUrl! : 'http://assets.stickpng.com/thumbs/585e4beacb11b227491c3399.png'),
             ),
             Text(user.nickname),
             Text(user.identifier),

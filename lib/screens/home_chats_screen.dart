@@ -22,8 +22,7 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
 
   @override
   void initState() {
-    WidgetsBinding.instance!.addObserver(this);
-    // colmap = Get.find<SettingsController>().colorsMap();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 

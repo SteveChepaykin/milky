@@ -66,7 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // ),
           child: Form(
             key: _form,
-            child: ListView(
+            child: Column(
               children: [
                 TextFormField(
                   decoration: const InputDecoration(

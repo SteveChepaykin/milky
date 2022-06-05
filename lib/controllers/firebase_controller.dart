@@ -268,7 +268,7 @@ class FirebaseController extends GetxController {
       'email': m['email']!,
       'identifier': m['identifier']!,
       'nickname': m['nickname']!,
-      'picture_url': null,
+      'picture_url': m['picture_url'],
     });
     var z = await q.get();
     var u = UserModel.fromMap(z.id, z.data()!);
@@ -286,7 +286,7 @@ class FirebaseController extends GetxController {
     });
   }
 
-  Future<String?> registerUser(Map<String, String> m) async {
+  Future<String?> registerUser(Map<String, String?> m) async {
     var a = await _store.collection('people').where('email', isEqualTo: m['email']).get();
     if (a.docs.isNotEmpty) {
       return 'This user already exists in app';
@@ -301,6 +301,7 @@ class FirebaseController extends GetxController {
       'email': m['email'],
       'identifier': m['identifier'],
       'nickname': m['nickname'],
+      'picture_url': m['image_url'],
     });
     return null;
   }

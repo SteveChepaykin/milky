@@ -87,31 +87,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const Text('set color cheme'),
               const SizedBox(height: 10,),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: [
-              //     TextButton(
-              //         onPressed: () {
-              //           Get.find<ThemeController>().chooseScheme(0);
-              //         },
-              //         child: const Text('1')),
-              //     TextButton(
-              //         onPressed: () {
-              //           Get.find<ThemeController>().chooseScheme(1);
-              //         },
-              //         child: const Text('2')),
-              //     TextButton(
-              //         onPressed: () {
-              //           Get.find<ThemeController>().chooseScheme(2);
-              //         },
-              //         child: const Text('3')),
-              //     TextButton(
-              //         onPressed: () {
-              //           Get.find<ThemeController>().chooseScheme(3);
-              //         },
-              //         child: const Text('4')),
-              //   ],
-              // ),
               SizedBox(
                 height: 500,
                 child: GridView.builder(
@@ -138,25 +113,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
-              // TextButton.icon(
-              //   onPressed: () {
-              //     var a = Get.find<SettingsController>();
-              //     a.setSize(double.parse(cont.text));
-              //     a.setRadius(double.parse(spdcont.text));
-              //     // a.setScheme(schemeindex);
-              //     // a.setDarkmode(isDark);
-              //     Navigator.pop(context);
-              //     setState(() {});
-              //   },
-              //   icon: const Icon(
-              //     Icons.save,
-              //     // color: Colors.white,
-              //   ),
-              //   label: const Text(
-              //     'сохранить',
-              //     // style: TextStyle(color: Colors.white),
-              //   ),
-              // ),
+              TextButton.icon(
+                onPressed: () {
+                  var a = Get.find<SettingsController>();
+                  a.setSize(double.parse(cont.text));
+                  a.setRadius(double.parse(spdcont.text));
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                icon: const Icon(
+                  Icons.save,
+                  // color: Colors.white,
+                ),
+                label: const Text(
+                  'save changes',
+                  // style: TextStyle(color: Colors.white),
+                ),
+              ),
             ],
           ),
         ),
