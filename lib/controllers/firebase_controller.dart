@@ -291,18 +291,17 @@ class FirebaseController extends GetxController {
     if (a.docs.isNotEmpty) {
       return 'This user already exists in app';
     }
-
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: m['email']!, password: m['password']!);
-    } on FirebaseAuthException catch (e) {
-      return 'ERROR: ${e.message!}';
-    }
     await adduser({
       'email': m['email'],
       'identifier': m['identifier'],
       'nickname': m['nickname'],
       'picture_url': m['image_url'],
     });
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: m['email']!, password: m['password']!);
+    } on FirebaseAuthException catch (e) {
+      return 'ERROR: ${e.message!}';
+    }
     return null;
   }
 

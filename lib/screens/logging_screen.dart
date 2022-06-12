@@ -20,7 +20,7 @@ class _RegisterScreenState extends State<LoggingScreen> {
   final _form = GlobalKey<FormState>();
   String nickname = '', identifier = '', email = '', password = '';
   File? imagefile;
-  String? imageurl = null;
+  String? imageurl;
   bool isLogin = true;
 
   void register() async {
