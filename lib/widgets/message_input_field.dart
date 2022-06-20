@@ -18,6 +18,14 @@ class _MessageInputFieldState extends State<MessageInputField> {
   final roomcont = Get.find<ChatRoomController>();
   final TextEditingController messagecont = TextEditingController();
   var storegaref = Get.find<FirebaseController>().storage;
+  final FocusNode fn = FocusNode();
+  bool load = true;
+
+  @override
+  void dispose() {
+    fn.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +41,13 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 borderRadius: BorderRadius.circular(12),
                 color: theme.colorScheme.primaryContainer,
               ),
-              child: Obx(
-                () => Column(
+              child: Obx(() {
+                if (roomcont.editedMessage$.value != null && load) {
+                  load = false;
+                  fn.requestFocus();
+                  messagecont.text = roomcont.editedMessage$.value!.messagetext!;
+                }
+                return Column(
                   children: [
                     if (roomcont.replying$.value)
                       Padding(
@@ -88,6 +101,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                         //   ),
                         Expanded(
                           child: TextField(
+                            focusNode: fn,
                             controller: messagecont,
                             decoration: const InputDecoration(
                               contentPadding: EdgeInsets.symmetric(vertical: 17, horizontal: 10),
@@ -101,7 +115,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                             minLines: 1,
                             maxLines: 4,
                             onChanged: (t) {
-                              setState(() {});
+                              // setState(() {});
                             },
                           ),
                         ),
@@ -150,26 +164,33 @@ class _MessageInputFieldState extends State<MessageInputField> {
                         IconButton(
                           onPressed: () async {
                             if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
-                              String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
-                              await roomcont.addMessage(
-                                {
-                                  'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
-                                  'senttotokens': roomcont.thischatroom!.getOthersTokens(),
-                                  'messageimageurl': pathUrl,
-                                  'replymessage': roomcont.replymessage != null
-                                      ? roomcont.replymessage!.active != null
-                                          ? !roomcont.replymessage!.active!
-                                              ? 'this message was deleted.'
-                                              : roomcont.replymessage!.messagetext
-                                          : roomcont.replymessage!.messagetext
-                                      : null,
-                                  // 'replymessage': roomcont.replymessage ?? null
-                                  'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
-                                  'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
-                                },
-                              );
-                              messagecont.clear();
-                              roomcont.clear();
+                              if (roomcont.editedMessage$.value == null) {
+                                String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
+                                await roomcont.addMessage(
+                                  {
+                                    'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
+                                    'senttotokens': roomcont.thischatroom!.getOthersTokens(),
+                                    'messageimageurl': pathUrl,
+                                    'replymessage': roomcont.replymessage != null
+                                        ? roomcont.replymessage!.active != null
+                                            ? !roomcont.replymessage!.active!
+                                                ? 'this message was deleted.'
+                                                : roomcont.replymessage!.messagetext
+                                            : roomcont.replymessage!.messagetext
+                                        : null,
+                                    // 'replymessage': roomcont.replymessage ?? null
+                                    'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
+                                    'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
+                                  },
+                                );
+                                messagecont.clear();
+                                roomcont.clear();
+                              } else {
+                                await roomcont.updateMessage(messagecont.text);
+                                roomcont.editedMessage$.value = null;
+                                messagecont.clear();
+                                load = true;
+                              }
                               setState(() {});
                             }
                           },
@@ -178,8 +199,8 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       ],
                     ),
                   ],
-                ),
-              ),
+                );
+              }),
             ),
           ),
           // const SizedBox(

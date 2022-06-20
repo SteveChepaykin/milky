@@ -190,6 +190,15 @@ class MessageBubble extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
               ),
+            if ((thismessage.active != null ? thismessage.active! : thismessage.active == null) && thismessage.sentByMe())
+              ListTile(
+                title: const Text('edit message'),
+                trailing: const Icon(Icons.edit),
+                onTap: () {
+                  c.setEditedMessage(thismessage);
+                  Navigator.of(context).pop();
+                },
+              ),
             ListTile(
               title: const Text('copy message'),
               trailing: const Icon(Icons.copy_rounded),

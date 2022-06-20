@@ -170,6 +170,13 @@ class FirebaseController extends GetxController {
     });
   }
 
+  Future<void> editMessage(ChatRoom cr, Message m, String newtext) async {
+    var a = _store.collection('chatrooms').doc(cr.id).collection('messages').doc(m.id);
+    a.update({
+      'messagetext': Crypter.encryptAES(newtext),
+    });
+  }
+
   Future<List<ChatRoom>> findRoomsByName(String query, int purp) async {
     if (query.isEmpty) return [];
     var a = await _store.collection('chatrooms').orderBy('name').startAt([query]).endAt([query + '\uf8ff']).where('purpose', isEqualTo: purp).get();

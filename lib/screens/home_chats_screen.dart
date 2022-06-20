@@ -117,7 +117,9 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
                       builder: (context) => const ChatScreen(),
                     ),
                   ).whenComplete(() {
-                    Get.find<ChatRoomController>().clear();
+                    setState(() {
+                      Get.find<ChatRoomController>().clear();
+                    });
                   });
                 },
               );

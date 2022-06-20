@@ -14,6 +14,7 @@ class ChatRoomController extends GetxController {
   XFile? imagefile;
   Uint8List? imagedata;
   Message? selectedMessage;
+  Rx<Message?> editedMessage$ = (null as Message?).obs;
   // bool isreplying = false;
   RxBool replying$ = false.obs;
   RxBool hasImage$ = false.obs;
@@ -48,6 +49,11 @@ class ChatRoomController extends GetxController {
     _thischatroom = a;
   }
 
+  void setEditedMessage(Message m) {
+    editedMessage$.value = m;
+    editedMessage$.refresh();
+  }
+
   void deselectMessage() {
     selectedMessage = null;
     messageSelected$.value = false; 
@@ -59,6 +65,10 @@ class ChatRoomController extends GetxController {
 
   Future<void> deactivateMessage(Message m) async {
     await Get.find<FirebaseController>().deactivateMessage(thischatroom!, m);
+  }
+
+  Future<void> updateMessage(String newText) async {
+    await Get.find<FirebaseController>().editMessage(thischatroom!, editedMessage$.value!, newText);
   }
 
   // Future<Message> getMessage(String id) async {
