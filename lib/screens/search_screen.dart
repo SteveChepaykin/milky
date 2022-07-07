@@ -73,7 +73,9 @@ class _SearchScreenState extends State<SearchScreen> {
         FutureBuilder<List<ChatRoom>>(
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return const Text('HASNT DATA');
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
             }
             if (snapshot.data!.isEmpty) {
               return const Text('no matches');
@@ -158,32 +160,33 @@ class _SearchScreenState extends State<SearchScreen> {
                       // bool exists = await Get.find<FirebaseController>().getOrMakeChatRoom(a);
                       bool exists = await Get.find<FirebaseController>().checkExistance(a);
                       showDialog(
-                          context: context,
-                          builder: (ctx) {
-                            return AlertDialog(
-                              title: Text(exists ? 'already chatting.' : 'Start chatting?'),
-                              content: Text(exists ? 'You already have a conversation with ${a.nickname}' : 'Do you want to start a chat with ${a.nickname}?'),
-                              actions: [
+                        context: context,
+                        builder: (ctx) {
+                          return AlertDialog(
+                            title: Text(exists ? 'already chatting.' : 'Start chatting?'),
+                            content: Text(exists ? 'You already have a conversation with ${a.nickname}' : 'Do you want to start a chat with ${a.nickname}?'),
+                            actions: [
+                              TextButton.icon(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(Icons.close),
+                                label: const Text('back'),
+                              ),
+                              if (!exists)
                                 TextButton.icon(
-                                  onPressed: () {
-                                    Navigator.pop(context);
+                                  onPressed: () async {
+                                    await Get.find<FirebaseController>().getOrMakeChatRoom(a).then((value) {
+                                      Navigator.of(context).popUntil((route) => route.isFirst);
+                                    });
                                   },
-                                  icon: const Icon(Icons.close),
-                                  label: const Text('back'),
+                                  icon: const Icon(Icons.arrow_forward),
+                                  label: const Text('continue'),
                                 ),
-                                if (!exists)
-                                  TextButton.icon(
-                                    onPressed: () async {
-                                      await Get.find<FirebaseController>().getOrMakeChatRoom(a).then((value) {
-                                        Navigator.of(context).popUntil((route) => route.isFirst);
-                                      });
-                                    },
-                                    icon: const Icon(Icons.arrow_forward),
-                                    label: const Text('continue'),
-                                  ),
-                              ],
-                            );
-                          },);
+                            ],
+                          );
+                        },
+                      );
                       // Get.find<ChatRoomController>().setChatRoom(a);
                       // Navigator.push(
                       //   context,

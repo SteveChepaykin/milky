@@ -104,13 +104,13 @@ class MessageBubble extends StatelessWidget {
                                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: size! - 2),
                                               )
                                             : const SizedBox(),
-                                        if (thismessage.replymap!['message'] != null)
+                                        thismessage.replymap!['message'] != null ?
                                           Text(
                                             thismessage.replymap!['message']!,
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 2,
                                             style: TextStyle(fontSize: size! - 2),
-                                          ),
+                                          ) : const Text('photo'),
                                       ],
                                     ),
                                   ),

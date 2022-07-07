@@ -118,7 +118,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   floatingHeader: true,
                   itemComparator: (m1, m2) => m1.timestamp.compareTo(m2.timestamp),
                   groupHeaderBuilder: (message) => SizedBox(
-                    height: 40,
+                    height: 60,
                     child: Center(
                       child: Card(
                         child: Padding(

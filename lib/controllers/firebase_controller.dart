@@ -159,7 +159,7 @@ class FirebaseController extends GetxController {
       ref = await _storage.ref(m.name).getData();
     } catch (e) {
       return null;
-    } 
+    }
     return ref;
   }
 
@@ -177,9 +177,16 @@ class FirebaseController extends GetxController {
     });
   }
 
+  Future<void> updateUserInfo(Map<String, String> map) async {
+    var a = _store.collection('users').doc(currentUser!.id);
+    a.update({
+      'nickname': map['nickname'],
+    });
+  }
+
   Future<List<ChatRoom>> findRoomsByName(String query, int purp) async {
     if (query.isEmpty) return [];
-    var a = await _store.collection('chatrooms').orderBy('name').startAt([query]).endAt([query + '\uf8ff']).where('purpose', isEqualTo: purp).get();
+    var a = await _store.collection('chatrooms').orderBy('name').startAt([query]).endAt([query + '\uf8ff']).where('purpose', isEqualTo: purp).limit(5).get();
     List<ChatRoom> res = [];
     for (var cr in a.docs) {
       var c = ChatRoom.fromMap(cr.id, cr.data());
@@ -193,7 +200,8 @@ class FirebaseController extends GetxController {
 
   Future<List<UserModel>> findUsersByName(String query) async {
     if (query.isEmpty || (query.startsWith('@') && query.length == 1)) return [];
-    var a = await _store.collection('people').orderBy(query.startsWith('@') ? 'identifier' : 'nickname').startAt([query]).endAt([query + '\uf8ff']).get();
+    var a =
+        await _store.collection('people').orderBy(query.startsWith('@') ? 'identifier' : 'nickname').startAt([query]).endAt([query + '\uf8ff']).limit(5).get();
     List<UserModel> res = [];
     for (var u in a.docs) {
       if (u.id != currentUser!.id) res.add(UserModel.fromMap(u.id, u.data()));
@@ -369,10 +377,6 @@ class FirebaseController extends GetxController {
   }
 
   Stream<String> getUserStatus(UserModel user) {
-    return _store
-      .collection('people')
-      .doc(user.id)
-      .snapshots()
-      .map((event) => event['is_online'] ? 'online' : 'last seen recently');
+    return _store.collection('people').doc(user.id).snapshots().map((event) => event['is_online'] ? 'online' : 'last seen recently');
   }
 }

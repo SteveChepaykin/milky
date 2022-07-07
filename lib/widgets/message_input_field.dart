@@ -19,7 +19,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
   final TextEditingController messagecont = TextEditingController();
   var storegaref = Get.find<FirebaseController>().storage;
   final FocusNode fn = FocusNode();
-  bool load = true;
+  bool load = false;
 
   @override
   void dispose() {
@@ -42,8 +42,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 color: theme.colorScheme.primaryContainer,
               ),
               child: Obx(() {
-                if (roomcont.editedMessage$.value != null && load) {
-                  load = false;
+                if (roomcont.editedMessage$.value != null) {
                   fn.requestFocus();
                   messagecont.text = roomcont.editedMessage$.value!.messagetext!;
                 }
@@ -86,7 +85,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                             ],
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey[400],
+                            color: theme.colorScheme.primaryContainer.withAlpha(100),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
@@ -161,41 +160,56 @@ class _MessageInputFieldState extends State<MessageInputField> {
                             },
                             icon: const Icon(Icons.camera),
                           ),
-                        IconButton(
-                          onPressed: () async {
-                            if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
-                              if (roomcont.editedMessage$.value == null) {
-                                String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
-                                await roomcont.addMessage(
-                                  {
-                                    'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
-                                    'senttotokens': roomcont.thischatroom!.getOthersTokens(),
-                                    'messageimageurl': pathUrl,
-                                    'replymessage': roomcont.replymessage != null
-                                        ? roomcont.replymessage!.active != null
-                                            ? !roomcont.replymessage!.active!
-                                                ? 'this message was deleted.'
-                                                : roomcont.replymessage!.messagetext
-                                            : roomcont.replymessage!.messagetext
-                                        : null,
-                                    // 'replymessage': roomcont.replymessage ?? null
-                                    'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
-                                    'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
-                                  },
-                                );
-                                messagecont.clear();
-                                roomcont.clear();
-                              } else {
-                                await roomcont.updateMessage(messagecont.text);
-                                roomcont.editedMessage$.value = null;
-                                messagecont.clear();
-                                load = true;
-                              }
-                              setState(() {});
-                            }
-                          },
-                          icon: const Icon(Icons.send),
-                        ),
+                        !load
+                            ? IconButton(
+                                onPressed: () async {
+                                  if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
+                                    setState(() {
+                                      load = true;
+                                    });
+                                    if (roomcont.editedMessage$.value == null) {
+                                      String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
+                                      await roomcont.addMessage(
+                                        {
+                                          'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
+                                          'senttotokens': roomcont.thischatroom!.getOthersTokens(),
+                                          'messageimageurl': pathUrl,
+                                          'replymessage': roomcont.replymessage != null
+                                              ? roomcont.replymessage!.active != null
+                                                  ? !roomcont.replymessage!.active!
+                                                      ? 'this message was deleted.'
+                                                      : roomcont.replymessage!.messagetext
+                                                  : roomcont.replymessage!.messagetext
+                                              : null,
+                                          // 'replymessage': roomcont.replymessage ?? null
+                                          'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
+                                          'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
+                                        },
+                                      );
+                                      messagecont.clear();
+                                      roomcont.clear();
+                                    } else {
+                                      await roomcont.updateMessage(messagecont.text);
+                                      roomcont.editedMessage$.value = null;
+                                      messagecont.clear();
+                                      load = true;
+                                    }
+                                    setState(() {
+                                      load = false;
+                                    });
+                                  }
+                                },
+                                icon: const Icon(Icons.send),
+                              )
+                            : const Padding(
+                                padding: EdgeInsets.only(
+                                  right: 10.0,
+                                  left: 4,
+                                ),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                ),
+                              ),
                       ],
                     ),
                   ],
@@ -203,78 +217,6 @@ class _MessageInputFieldState extends State<MessageInputField> {
               }),
             ),
           ),
-          // const SizedBox(
-          //   width: 10,
-          // ),
-          // if (messagecont.text.isEmpty && !roomcont.hasImage$.value)
-          //   FloatingActionButton(
-          //     heroTag: '1',
-          //     onPressed: () {
-          //       // var im = await pickImage(ImageSource.gallery);
-          //       // if (im != null) {
-          //       //   setState(() {
-          //       //     roomcont.imagefile = im['file'];
-          //       //     roomcont.imagedata = im['data'];
-          //       //     roomcont.hasImage$.value = true;
-          //       //   });
-          //       // }
-          //       showModalBottomSheet(
-          //         context: context,
-          //         builder: (_) {
-          //           return Column(
-          //             mainAxisSize: MainAxisSize.min,
-          //             children: [
-          //               imageTile(
-          //                 ImageSource.gallery,
-          //                 'from gallery',
-          //                 Icons.image_search_rounded,
-          //               ),
-          //               imageTile(
-          //                 ImageSource.camera,
-          //                 'with camera',
-          //                 Icons.camera_alt_outlined,
-          //               ),
-          //             ],
-          //           );
-          //         },
-          //       );
-          //     },
-          //     child: const Icon(Icons.camera),
-          //     elevation: 0,
-          //   ),
-          // const SizedBox(
-          //   width: 10,
-          // ),
-          // FloatingActionButton(
-          //   heroTag: '2',
-          //   onPressed: () async {
-          //     if (roomcont.imagefile != null || messagecont.text.isNotEmpty) {
-          //       String? pathUrl = roomcont.imagefile != null ? await uploadImage(roomcont.imagefile!) : null;
-          //       await roomcont.addMessage(
-          //         {
-          //           'messagetext': messagecont.text.isNotEmpty ? messagecont.text : null,
-          //           'senttotokens': roomcont.thischatroom!.getOthersTokens(),
-          //           'messageimageurl': pathUrl,
-          //           'replymessage': roomcont.replymessage != null
-          //               ? roomcont.replymessage!.active != null
-          //                   ? !roomcont.replymessage!.active!
-          //                       ? 'this message was deleted.'
-          //                       : roomcont.replymessage!.messagetext
-          //                   : roomcont.replymessage!.messagetext
-          //               : null,
-          //           // 'replymessage': roomcont.replymessage ?? null
-          //           'replyauthorid': roomcont.replymessage != null ? roomcont.replymessage!.sentbyid : null,
-          //           'replyimageurl': roomcont.replymessage != null ? roomcont.replymessage!.messageimageurl : null
-          //         },
-          //       );
-          //       messagecont.clear();
-          //       roomcont.clear();
-          //       setState(() {});
-          //     }
-          //   },
-          //   child: const Icon(Icons.send),
-          //   elevation: 0,
-          // ),
         ],
       ),
     );
