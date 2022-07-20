@@ -12,7 +12,6 @@ class ThemeController extends GetxController {
     FlexScheme.aquaBlue,
     FlexScheme.mango,
     FlexScheme.money,
-    FlexScheme.aquaBlue,
     FlexScheme.deepPurple,
     FlexScheme.sakura,
     FlexScheme.shark,

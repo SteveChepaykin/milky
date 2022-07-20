@@ -57,19 +57,23 @@ class MessageBubble extends StatelessWidget {
                           thismessage.sentbyid == Get.find<FirebaseController>().currentUser!.id
                               ? 'You'
                               : roomcont.thischatroom!.roomusers[thismessage.sentbyid]!.nickname,
-                          style: TextStyle(fontSize: size! - 1, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: size! - 1,
+                            fontWeight: FontWeight.bold,
+                            color: thismessage.sentByMe() ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onTertiaryContainer,
+                          ),
                         ),
                       ),
                     if (thismessage.replymap != null)
                       IntrinsicWidth(
                         child: Container(
                           constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.2),
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.only(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.only(
                               topRight: Radius.circular(8),
                               bottomRight: Radius.circular(8),
                             ),
-                            color: Color.fromARGB(150, 38, 124, 194),
+                            color: thismessage.sentByMe() ? theme.colorScheme.surfaceVariant.withOpacity(0.6) : theme.colorScheme.surfaceVariant.withOpacity(0.6),
                           ),
                           child: IntrinsicHeight(
                             child: Row(
@@ -104,13 +108,18 @@ class MessageBubble extends StatelessWidget {
                                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: size! - 2),
                                               )
                                             : const SizedBox(),
-                                        thismessage.replymap!['message'] != null ?
-                                          Text(
-                                            thismessage.replymap!['message']!,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: TextStyle(fontSize: size! - 2),
-                                          ) : const Text('photo'),
+                                        thismessage.replymap!['message'] != null
+                                            ? Text(
+                                                thismessage.replymap!['message']!,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2,
+                                                style: TextStyle(
+                                                  fontSize: size! - 2,
+                                                  color: theme.colorScheme.onSurfaceVariant,
+                                                  // color: thismessage.sentByMe() ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onTertiaryContainer,
+                                                ),
+                                              )
+                                            : const Text('photo'),
                                       ],
                                     ),
                                   ),
@@ -153,13 +162,19 @@ class MessageBubble extends StatelessWidget {
                       child: thismessage.messagetext != null
                           ? Text(
                               thismessage.messagetext!,
-                              style: TextStyle(fontSize: size),
+                              style: TextStyle(
+                                fontSize: size,
+                                color: thismessage.sentByMe() ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onTertiaryContainer,
+                              ),
                             )
                           : null,
                     ),
                     Text(
                       DateFormat.Hm().format(thismessage.timestamp),
-                      style: TextStyle(fontSize: size! - 3),
+                      style: TextStyle(
+                        fontSize: size! - 3,
+                        color: thismessage.sentByMe() ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onTertiaryContainer,
+                      ),
                     )
                   ],
                 )
@@ -169,6 +184,7 @@ class MessageBubble extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                     fontWeight: FontWeight.bold,
                     fontSize: size!,
+                    color: thismessage.sentByMe() ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onTertiaryContainer,
                   ),
                 ),
         ),

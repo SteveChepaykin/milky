@@ -86,9 +86,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               const Text('set color cheme'),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               SizedBox(
-                height: 500,
+                height: ThemeController.schemes.length / 4 * 120,
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
@@ -98,10 +100,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   itemCount: ThemeController.schemes.length,
                   itemBuilder: (context, i) => Container(
-                    decoration: chosen == i ? BoxDecoration(
-                      border: Border.all(width: 1.5, color: Theme.of(context).colorScheme.secondary),
-                      borderRadius: const BorderRadius.all(Radius.circular(20))
-                    ) : null,
+                    decoration: chosen == i
+                        ? BoxDecoration(
+                            border: Border.all(width: 1.5, color: Theme.of(context).colorScheme.secondary),
+                            borderRadius: const BorderRadius.all(Radius.circular(20)))
+                        : null,
                     child: TextButton(
                       onPressed: () {
                         Get.find<ThemeController>().chooseScheme(i);
@@ -113,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
-              TextButton.icon(
+              ElevatedButton.icon(
                 onPressed: () {
                   var a = Get.find<SettingsController>();
                   a.setSize(double.parse(cont.text));
@@ -121,15 +124,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Navigator.pop(context);
                   setState(() {});
                 },
-                icon: const Icon(
-                  Icons.save,
-                  // color: Colors.white,
-                ),
-                label: const Text(
-                  'save changes',
-                  // style: TextStyle(color: Colors.white),
-                ),
-              ),
+                icon: const Icon(Icons.save_rounded),
+                label: const Text('save changes'),
+              )
             ],
           ),
         ),

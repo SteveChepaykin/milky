@@ -39,7 +39,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: theme.colorScheme.primaryContainer,
+                color: theme.colorScheme.primaryContainer.withOpacity(0),
               ),
               child: Obx(() {
                 if (roomcont.editedMessage$.value != null) {
@@ -48,6 +48,10 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 }
                 return Column(
                   children: [
+                    Divider(
+                      thickness: 1.5,
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
                     if (roomcont.replying$.value)
                       Padding(
                         padding: const EdgeInsets.only(left: 8, top: 8, right: 8),
@@ -57,9 +61,13 @@ class _MessageInputFieldState extends State<MessageInputField> {
                             children: [
                               const SizedBox(width: 6),
                               Container(
-                                color: Colors.green,
+                                
                                 width: 5,
                                 height: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.green,
+                                ),
                               ),
                               const SizedBox(width: 3),
                               Expanded(
@@ -85,7 +93,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                             ],
                           ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primaryContainer.withAlpha(100),
+                            color: theme.colorScheme.surfaceVariant.withOpacity(1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),

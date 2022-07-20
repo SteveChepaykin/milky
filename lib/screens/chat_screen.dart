@@ -118,11 +118,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   floatingHeader: true,
                   itemComparator: (m1, m2) => m1.timestamp.compareTo(m2.timestamp),
                   groupHeaderBuilder: (message) => SizedBox(
-                    height: 60,
+                    height: 80,
                     child: Center(
                       child: Card(
                         child: Padding(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(10),
                           child: Text(
                             DateFormat.yMMMd().format(message.timestamp),
                           ),
@@ -132,7 +132,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   itemBuilder: (context, message) {
                     return SwipeTo(
-                      animationDuration: const Duration(milliseconds: 120),
+                      animationDuration: const Duration(milliseconds: 150),
                       key: ValueKey(message.id),
                       child: MessageBubble(
                         key: ValueKey(message.id),
@@ -171,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                               )
                             : const Center(child: Text('you cant send messages here.')),
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
                   ),
                 )
               : const MessageInputField(),
