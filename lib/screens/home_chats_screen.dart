@@ -53,6 +53,12 @@ class _HomeChatsScreenState extends State<HomeChatsScreen> with WidgetsBindingOb
             icon: const Icon(Icons.add),
           ),
           // IconButton(
+          //   onPressed: () async {
+          //     await Get.find<FirebaseController>().sendNotif();
+          //   },
+          //   icon: const Icon(Icons.send_time_extension),
+          // ),
+          // IconButton(
           //     onPressed: () async {
           //       await Get.find<FirebaseController>().signOutUser();
           //     },

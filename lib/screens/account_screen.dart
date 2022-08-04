@@ -28,8 +28,8 @@ class _AccountScreenState extends State<AccountScreen> {
         title: const Text('Account'),
         actions: [
           TextButton.icon(
-            onPressed: () {
-              Get.find<FirebaseController>().signOutUser();
+            onPressed: () async {
+              await Get.find<FirebaseController>().signOutUser();
             },
             icon: const Icon(Icons.exit_to_app_rounded),
             label: const Text('LOG OUT'),

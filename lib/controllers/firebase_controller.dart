@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +11,8 @@ import 'package:milky/models/chatroom_model.dart';
 import 'package:milky/models/message_model.dart';
 import 'package:milky/models/user_model.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class FirebaseController extends GetxController {
   late final FirebaseFirestore _store;
@@ -151,6 +154,7 @@ class FirebaseController extends GetxController {
     await a.update({
       'lastmessageid': b.id,
     });
+    await sendNotif(m);
   }
 
   Future<Uint8List?> getMessageImage(Message m) async {
@@ -320,6 +324,43 @@ class FirebaseController extends GetxController {
     return null;
   }
 
+  Future<void> sendNotif(Map<String, dynamic> map) async {
+    // var status = await OneSignal.shared.getPermissionSubscriptionState();
+
+    // var playerId = status.subscriptionStatus.userId;
+
+    // await OneSignal.shared.postNotification(
+    //   OSCreateNotification(
+    //     playerIds: ['484b6300-60a5-4060-b6eb-f20075d654c2'],
+    //     content: "this is a test from OneSignal's Flutter SDK",
+    //     heading: "Test Notification",
+    //     // send_after: DateTime.now().add(Duration(minutes: 30)).toUtc().toIso8601String(),
+    //     buttons: [
+    //       OSActionButton(text: "test1", id: "id1"),
+    //       OSActionButton(text: "test2", id: "id2"),
+    //     ],
+    //   ),
+    // );
+
+    await http.post(
+      Uri.parse("https://onesignal.com/api/v1/notifications"),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic YmNmNzg0YjMtYzhkNS00NjZhLWJiZmItM2M3YjJkNDMzYmNm',
+      },
+      body: json.encode(
+        {
+          "app_id": "88109959-dc79-4c4a-978d-63980f0c2174",
+          "include_external_user_ids": map['senttotokens'],
+          "channel_for_external_user_ids": "push",
+          "data": {"foo": "bar"},
+          "contents": {"en": map['messagetext'] ?? 'photo'}
+        },
+      ),
+    );
+  }
+
   Future<String?> signInUser(Map<String, String> m) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: m['email']!, password: m['password']!);
@@ -328,6 +369,11 @@ class FirebaseController extends GetxController {
     }
     var a = await _store.collection('people').where('email', isEqualTo: m['email']!).limit(1).get();
     var u = UserModel.fromMap(a.docs[0].id, a.docs[0].data());
+    await OneSignal.shared.setExternalUserId(u.cloudtoken).then((results) {
+      print(results.toString());
+    }).catchError((error) {
+      print(error.toString());
+    });
     setCurrentUser(u);
     return null;
   }
@@ -347,15 +393,22 @@ class FirebaseController extends GetxController {
     try {
       await FirebaseAuth.instance.signInWithCredential(credential);
     } on FirebaseAuthException catch (_) {
-      return 'logingoogleerror';
+      return 'login google error';
     }
     var u = UserModel.fromMap(a.docs[0].id, a.docs[0].data());
+    await OneSignal.shared.setExternalUserId(u.cloudtoken).then((results) {
+      print(results.toString());
+    }).catchError((error) {
+      print(error.toString());
+    });
     setCurrentUser(u);
     return null;
   }
 
   Future<void> signOutUser() async {
+    await OneSignal.shared.removeExternalUserId();
     await FirebaseAuth.instance.signOut();
+    setCurrentUser(null);
   }
 
   void setCurrentUser(UserModel? user) {

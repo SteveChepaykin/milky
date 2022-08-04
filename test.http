@@ -1,0 +1,13 @@
+POST https://onesignal.com/api/v1/notifications
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic YmNmNzg0YjMtYzhkNS00NjZhLWJiZmItM2M3YjJkNDMzYmNm
+
+{
+    "app_id": "88109959-dc79-4c4a-978d-63980f0c2174",
+    "include_external_user_ids": ["SOMETHINGLATER"],
+    "channel_for_external_user_ids": "push",
+    "data": {"foo": "bar"},
+    "contents": {"en": "English Message"}
+}
+

@@ -9,11 +9,19 @@ import 'package:milky/models/user_model.dart';
 import 'package:milky/screens/home_chats_screen.dart';
 // import 'package:milky/screens/log_in_screen.dart';
 import 'package:milky/screens/logging_screen.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 // import 'package:flex_color_scheme/flex_color_scheme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
+
+  OneSignal.shared.setAppId("88109959-dc79-4c4a-978d-63980f0c2174");
+
+  OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
+    print("Accepted permission: $accepted");
+  });
   var fcont = FirebaseController();
   fcont.listenUserAuthState();
   var rcont = ChatRoomController();
